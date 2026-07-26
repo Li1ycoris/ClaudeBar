@@ -103,6 +103,23 @@ struct GrokCredentialLoaderTests {
         #expect(credentials?.accessToken == "oidc-token")
     }
 
+    @Test
+    func `treats empty refresh token as absent`() throws {
+        let tempDir = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        var entry = oidcEntry()
+        entry["refresh_token"] = ""
+        try writeAuthFile(at: tempDir, json: [
+            "https://auth.x.ai::client-123": entry
+        ])
+
+        let loader = GrokCredentialLoader(homeDirectory: tempDir.path)
+        let credentials = try #require(loader.loadCredentials())
+
+        #expect(credentials.refreshToken == nil)
+    }
+
     // MARK: - Expiry Tests
 
     @Test

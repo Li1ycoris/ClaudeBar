@@ -90,9 +90,10 @@ public struct GrokCredentialLoader: Sendable {
                       !accessToken.isEmpty else {
                     continue
                 }
+                let refreshToken = (entry["refresh_token"] as? String).flatMap { $0.isEmpty ? nil : $0 }
                 candidates.append(GrokCredentialResult(
                     accessToken: accessToken,
-                    refreshToken: entry["refresh_token"] as? String,
+                    refreshToken: refreshToken,
                     email: entry["email"] as? String,
                     expiresAt: entry["expires_at"] as? String,
                     oidcIssuer: entry["oidc_issuer"] as? String,

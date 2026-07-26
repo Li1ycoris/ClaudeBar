@@ -101,8 +101,10 @@ public struct GrokUsageProbe: UsageProbe, @unchecked Sendable {
         }
 
         if httpResponse.statusCode == 400 || httpResponse.statusCode == 401 {
-            let body = String(data: data, encoding: .utf8) ?? ""
-            AppLog.probes.error("Grok: Token refresh rejected (HTTP \(httpResponse.statusCode)): \(body.prefix(200))")
+            // Log only the OAuth error code — the raw body may carry sensitive data
+            let errorObject = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+            let errorCode = (errorObject?["error"] as? String) ?? "unknown"
+            AppLog.probes.error("Grok: Token refresh rejected (HTTP \(httpResponse.statusCode), error: \(errorCode))")
             throw ProbeError.sessionExpired(hint: Self.reloginHint)
         }
 
