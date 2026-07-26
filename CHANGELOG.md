@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Grok Build (xAI) provider: monitors weekly credit usage and per-product
+  limits (Grok Build, Grok Imagine, Grok Voice) via the same billing endpoint
+  the `grok` CLI uses. Reads OAuth credentials from `~/.grok/auth.json`,
+  refreshing expired tokens against the recorded OIDC issuer, and shows the
+  period reset countdown plus on-demand overflow usage once a cap is
+  configured. (#234)
+
 ### Fixed
 - Popover scrolling no longer trembles or snaps back while dragging upward.
   The card grids were `LazyVGrid`s inside the popover's vertical `ScrollView`,
