@@ -46,6 +46,14 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
     /// `quotaType` so persisted quota keys and the menu bar are unaffected.
     public let compactTitle: String?
 
+    /// Menu-bar window title used when this quota renders as one of two
+    /// joined/stacked windows (e.g. "Claude 7d · jkjk987…"). Probes set it
+    /// when the full label is too wide for the menu bar — typically a long
+    /// account discriminator. The menu bar falls back to
+    /// `quotaType.shortLabel` when nil. The full label stays in `quotaType`
+    /// so persisted quota keys are unaffected.
+    public let menuBarTitle: String?
+
     // MARK: - Initialization
 
     public init(
@@ -59,7 +67,8 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         dollarUsed: Decimal? = nil,
         dollarCap: Decimal? = nil,
         group: String? = nil,
-        compactTitle: String? = nil
+        compactTitle: String? = nil,
+        menuBarTitle: String? = nil
     ) {
         self.percentRemaining = min(100, percentRemaining)  // Allow negative, cap at 100
         self.quotaType = quotaType
@@ -72,6 +81,7 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         self.dollarCap = dollarCap
         self.group = group
         self.compactTitle = compactTitle
+        self.menuBarTitle = menuBarTitle
     }
 
     // MARK: - Domain Behavior

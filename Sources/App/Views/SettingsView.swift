@@ -460,7 +460,7 @@ struct SettingsContentView: View {
                         HStack(spacing: 8) {
                             ForEach(menuBarQuotaOptions, id: \.quotaType.quotaKey) { quota in
                                 MenuBarQuotaChoiceButton(
-                                    title: quota.quotaType.displayName,
+                                    title: quota.menuBarTitle ?? quota.quotaType.displayName,
                                     isSelected: settings.menuBarPercentageQuotaKey == quota.quotaType.quotaKey
                                 ) {
                                     settings.menuBarPercentageQuotaKey = quota.quotaType.quotaKey
@@ -491,7 +491,7 @@ struct SettingsContentView: View {
 
                             ForEach(secondaryMenuBarQuotaOptions, id: \.quotaType.quotaKey) { quota in
                                 MenuBarQuotaChoiceButton(
-                                    title: quota.quotaType.displayName,
+                                    title: quota.menuBarTitle ?? quota.quotaType.displayName,
                                     isSelected: settings.menuBarSecondaryQuotaKey == quota.quotaType.quotaKey
                                 ) {
                                     settings.menuBarSecondaryQuotaKey = quota.quotaType.quotaKey

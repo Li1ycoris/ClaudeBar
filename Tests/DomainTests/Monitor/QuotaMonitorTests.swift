@@ -427,6 +427,40 @@ struct QuotaMonitorTests {
     }
 
     @Test
+    func `menu bar label prefers the quota's menuBarTitle for window prefixes`() async {
+        // Given: an aggregated quota whose full label carries a long account
+        // discriminator, condensed by the probe into `menuBarTitle`; the
+        // weekly window carries no override
+        let monitor = await makeRefreshedClaudeMonitor(quotas: [
+            UsageQuota(
+                percentRemaining: 69,
+                quotaType: .timeLimit("Claude 7d · jkjk987654321012"),
+                providerId: "claude",
+                menuBarTitle: "Claude 7d · jkjk987…"
+            ),
+            UsageQuota(percentRemaining: 35, quotaType: .weekly, providerId: "claude"),
+        ])
+
+        // When
+        let label = monitor.menuBarLabel(
+            providerId: "claude",
+            primaryQuotaKey: "time:Claude 7d · jkjk987654321012",
+            secondaryQuotaKey: "weekly",
+            showPercentage: true,
+            showDuration: false,
+            mode: .remaining
+        )
+
+        // Then: the condensed title replaces the full label in the joined
+        // text and the segment; windows without an override keep shortLabel
+        #expect(label?.text == "Claude 7d · jkjk987… 69% | 7d 35%")
+        #expect(label?.segments == [
+            MenuBarLabel.Segment(text: "Claude 7d · jkjk987… 69%", status: .healthy),
+            MenuBarLabel.Segment(text: "7d 35%", status: .warning),
+        ])
+    }
+
+    @Test
     func `menu bar label segments cover the duration-only variant`() async {
         // Given: session quota with reset ~3h away
         let monitor = await makeRefreshedClaudeMonitor(quotas: [
