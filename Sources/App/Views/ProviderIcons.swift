@@ -97,6 +97,7 @@ struct ProviderIconView: View {
         case "minimax": return "waveform"
         case "opencode-go": return "square.stack.3d.up.fill"
         case "omp": return "terminal.fill"
+        case "grok": return "line.diagonal"
         default: return "questionmark"
         }
     }

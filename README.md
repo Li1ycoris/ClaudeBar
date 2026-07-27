@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/Platform-macOS%2015-blue.svg)](https://developer.apple.com)
 [![Homebrew](https://img.shields.io/badge/Homebrew-Install-brightgreen.svg)](https://formulae.brew.sh/cask/claudebar)
 
-A macOS menu bar application that monitors AI coding assistant usage quotas. Keep track of your Claude, Codex, Gemini, GitHub Copilot, Antigravity, Z.ai, Kimi, Kiro, Amp, OpenCode Go, Oh My Pi, and more at a glance.
+A macOS menu bar application that monitors AI coding assistant usage quotas. Keep track of your Claude, Codex, Gemini, GitHub Copilot, Antigravity, Z.ai, Kimi, Kiro, Amp, OpenCode Go, Oh My Pi, Grok, and more at a glance.
 
 <table align="center">
   <tr>
@@ -23,7 +23,7 @@ A macOS menu bar application that monitors AI coding assistant usage quotas. Kee
 
 ## Features
 
-- **Multi-Provider Support** - Monitor Claude, Codex, Gemini, GitHub Copilot, Antigravity, Z.ai, Kimi, Kiro, Amp, OpenCode Go, and Oh My Pi quotas in one place
+- **Multi-Provider Support** - Monitor Claude, Codex, Gemini, GitHub Copilot, Antigravity, Z.ai, Kimi, Kiro, Amp, OpenCode Go, Oh My Pi, and Grok quotas in one place
 - **Provider Enable/Disable** - Toggle individual providers on/off from Settings to customize your monitoring
 - **Real-Time Quota Tracking** - View Session, Weekly, and Model-specific usage percentages
 - **Multiple Themes** - Light, Dark, CLI, Christmas, and [imported terminal themes](#import-terminal-theme) (.itermcolors)
@@ -58,6 +58,7 @@ A macOS menu bar application that monitors AI coding assistant usage quotas. Kee
   - [Amp](https://ampcode.com) (`amp`) - Auto-detected when CLI is installed
   - [OpenCode Go](https://opencode.ai/go) (`opencode`) - Tracks OpenCode Go usage windows (5hr/$12, weekly/$30, monthly/$60) via local SQLite DB
   - [Oh My Pi](https://omp.sh) (`omp`) - Aggregates account usage via `omp usage --json`, showing rate-limit windows and, where reported, capped USD money cards or uncapped spend notes
+  - [Grok Build](https://docs.x.ai) (`grok`) - Tracks xAI credit usage (weekly window + per-product Grok Build / Imagine / Voice limits) using the CLI's local OAuth credentials
 
 ### Kimi Setup
 

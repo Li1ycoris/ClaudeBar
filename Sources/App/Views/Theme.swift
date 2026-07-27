@@ -647,6 +647,10 @@ extension AppTheme {
             return scheme == .dark
                 ? Color(red: 0.30, green: 0.85, blue: 0.55)
                 : Color(red: 0.16, green: 0.62, blue: 0.38)
+        case "grok":
+            return scheme == .dark
+                ? Color(white: 0.92)
+                : Color(white: 0.12)
         default:
             return purpleVibrant(for: scheme)
         }
@@ -703,6 +707,10 @@ extension AppTheme {
             secondaryColor = scheme == .dark
                 ? Color(red: 0.16, green: 0.62, blue: 0.42)
                 : Color(red: 0.10, green: 0.48, blue: 0.30)
+        case "grok":
+            secondaryColor = scheme == .dark
+                ? Color(white: 0.60)
+                : Color(white: 0.40)
         default:
             return accentGradient(for: scheme)
         }
@@ -728,6 +736,7 @@ extension AppTheme {
         case "alibaba": return "AlibabaIcon"
         case "opencode-go": return "OpenCodeIcon"
         case "omp": return "OmpIcon"
+        case "grok": return "GrokIcon"
         default: return "QuestionIcon"
         }
     }
@@ -746,6 +755,7 @@ extension AppTheme {
         case "alibaba": return "Alibaba"
         case "opencode-go": return "OpenCode Go"
         case "omp": return "Oh My Pi"
+        case "grok": return "Grok"
         default: return providerId.capitalized
         }
     }
@@ -764,6 +774,7 @@ extension AppTheme {
         case "alibaba": return "cloud.fill"
         case "opencode-go": return "square.stack.3d.up.fill"
         case "omp": return "terminal.fill"
+        case "grok": return "line.diagonal"
         default: return "questionmark.circle.fill"
         }
     }
