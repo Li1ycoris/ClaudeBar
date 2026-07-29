@@ -22,6 +22,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cells materialized. Cards now lay out eagerly — the popover shows a few
   dozen at most, so laziness bought nothing — and the scroll view knows exact
   content heights up front.
+- Long account discriminators no longer flood the menu bar. Oh My Pi quota
+  labels embed an account token to keep multi-account quota keys unique
+  (e.g. "Claude 7d · jkjk987654321012"), and the dual-window menu bar label
+  rendered the whole thing. Aggregated quotas now carry a condensed menu-bar
+  title that truncates tokens longer than 8 characters to a 7-character
+  prefix plus an ellipsis ("Claude 7d · jkjk987…"); the menu bar and the
+  quota picker chips in Settings prefer it, while the full label — and
+  therefore every persisted quota key — stays unchanged. Condensed titles
+  that collide across accounts sharing a prefix get a numeric suffix
+  ("jkjk987… (2)") so the chips stay distinguishable.
 
 ---
 
