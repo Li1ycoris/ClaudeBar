@@ -54,6 +54,11 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
     /// so persisted quota keys are unaffected.
     public let menuBarTitle: String?
 
+    /// ISO 4217 currency code for dollar-based quotas (e.g. "USD", "CNY").
+    /// nil means USD (the default). Used by `formattedDollarRemaining` to pick
+    /// the display symbol; ignored for percentage-based quotas.
+    public let currency: String?
+
     // MARK: - Initialization
 
     public init(
@@ -68,7 +73,8 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         dollarCap: Decimal? = nil,
         group: String? = nil,
         compactTitle: String? = nil,
-        menuBarTitle: String? = nil
+        menuBarTitle: String? = nil,
+        currency: String? = nil
     ) {
         self.percentRemaining = min(100, percentRemaining)  // Allow negative, cap at 100
         self.quotaType = quotaType
@@ -82,6 +88,7 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         self.group = group
         self.compactTitle = compactTitle
         self.menuBarTitle = menuBarTitle
+        self.currency = currency
     }
 
     // MARK: - Domain Behavior
@@ -107,11 +114,13 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         dollarRemaining != nil
     }
 
-    /// Formatted dollar remaining string (e.g., "$50.00"), nil for percentage-based quotas
+    /// Formatted balance remaining string (e.g., "$50.00", "¥110.00"), nil for percentage-based quotas.
+    /// The symbol follows `currency` (default "$" when nil or USD).
     public var formattedDollarRemaining: String? {
         guard let dollarRemaining else { return nil }
         let amount = NSDecimalNumber(decimal: dollarRemaining).doubleValue
-        return String(format: "$%.2f", amount)
+        let symbol = currency.map(Self.currencySymbol(for:)) ?? "$"
+        return String(format: "%@%.2f", symbol, amount)
     }
 
     /// Formatted spend amount for capped monetary quotas (e.g. "$1,234.56").
@@ -136,6 +145,22 @@ public struct UsageQuota: Sendable, Equatable, Hashable, Comparable {
         formatter.maximumFractionDigits = 2
         let value = formatter.string(from: amount as NSDecimalNumber) ?? "\(amount)"
         return "$\(value)"
+    }
+
+    /// Maps an ISO 4217 currency code to its display symbol (e.g., "USD" → "$", "CNY" → "¥").
+    /// Unknown codes fall back to the uppercased code with a trailing space.
+    public static func currencySymbol(for code: String) -> String {
+        switch code.uppercased() {
+        case "USD", "US", "US$": return "$"
+        case "CNY", "CNH", "RMB", "CN", "¥": return "¥"
+        case "EUR": return "€"
+        case "GBP": return "£"
+        case "JPY": return "¥"
+        case "HKD": return "HK$"
+        case "KRW": return "₩"
+        case "SGD": return "S$"
+        default: return code.uppercased() + " "
+        }
     }
 
     /// Whether this quota needs attention (warning, critical, or depleted)

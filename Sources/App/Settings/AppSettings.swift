@@ -294,6 +294,7 @@ public final class AppSettings {
     public var zai: ZaiSettingsRepository { repository }
     public var bedrock: BedrockSettingsRepository { repository }
     public var minimax: MiniMaxSettingsRepository { repository }
+    public var deepseek: DeepSeekSettingsRepository { repository }
     public var alibaba: AlibabaSettingsRepository { repository }
     public var hook: HookSettingsRepository { repository }
 

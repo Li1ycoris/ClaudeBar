@@ -34,6 +34,7 @@ struct SettingsContentView: View {
         static let bedrock = "bedrock"
         static let kimi = "kimi"
         static let minimax = "minimax"
+        static let deepseek = "deepseek"
         static let alibaba = "alibaba"
     }
 
@@ -59,6 +60,10 @@ struct SettingsContentView: View {
 
     private var isMiniMaxEnabled: Bool {
         monitor.provider(for: ProviderID.minimax)?.isEnabled ?? false
+    }
+
+    private var isDeepSeekEnabled: Bool {
+        monitor.provider(for: ProviderID.deepseek)?.isEnabled ?? false
     }
 
     private var isBedrockEnabled: Bool {
@@ -114,6 +119,10 @@ struct SettingsContentView: View {
                     }
                     if isMiniMaxEnabled {
                         MiniMaxConfigCard(monitor: monitor)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                    if isDeepSeekEnabled {
+                        DeepSeekConfigCard(monitor: monitor)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                     if isAlibabaEnabled {

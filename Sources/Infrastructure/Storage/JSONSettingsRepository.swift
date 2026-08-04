@@ -519,3 +519,33 @@ public final class JSONSettingsRepository:
         getMinimaxApiKey() != nil
     }
 }
+
+// MARK: - DeepSeekSettingsRepository
+
+extension JSONSettingsRepository: DeepSeekSettingsRepository {
+    public func deepseekAuthEnvVar() -> String {
+        store.read(key: "deepseek.authEnvVar") ?? ""
+    }
+
+    public func setDeepSeekAuthEnvVar(_ envVar: String) {
+        store.write(value: envVar, key: "deepseek.authEnvVar")
+    }
+
+    // DeepSeek Credentials (UserDefaults for now)
+
+    public func saveDeepSeekApiKey(_ key: String) {
+        credentials.set(key, forKey: "com.claudebar.credentials.deepseek-api-key")
+    }
+
+    public func getDeepSeekApiKey() -> String? {
+        credentials.string(forKey: "com.claudebar.credentials.deepseek-api-key")
+    }
+
+    public func deleteDeepSeekApiKey() {
+        credentials.removeObject(forKey: "com.claudebar.credentials.deepseek-api-key")
+    }
+
+    public func hasDeepSeekApiKey() -> Bool {
+        getDeepSeekApiKey() != nil
+    }
+}
