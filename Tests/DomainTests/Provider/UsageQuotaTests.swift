@@ -382,6 +382,36 @@ struct UsageQuotaTests {
     }
 
     @Test
+    func `formattedDollarRemaining uses CNY symbol when currency is CNY`() {
+        // Given
+        let quota = UsageQuota(percentRemaining: 100, quotaType: .modelSpecific("Balance"), providerId: "deepseek", dollarRemaining: Decimal(110), currency: "CNY")
+
+        // When & Then
+        #expect(quota.formattedDollarRemaining == "¥110.00")
+    }
+
+    @Test
+    func `formattedDollarRemaining defaults to dollar symbol when currency is nil or USD`() {
+        // Given
+        let nilCurrency = UsageQuota(percentRemaining: 100, quotaType: .modelSpecific("Balance"), providerId: "deepseek", dollarRemaining: Decimal(40))
+        let usdCurrency = UsageQuota(percentRemaining: 100, quotaType: .modelSpecific("Balance"), providerId: "deepseek", dollarRemaining: Decimal(40), currency: "USD")
+
+        // When & Then
+        #expect(nilCurrency.formattedDollarRemaining == "$40.00")
+        #expect(usdCurrency.formattedDollarRemaining == "$40.00")
+    }
+
+    @Test
+    func `currencySymbol maps common codes and falls back to code`() {
+        // When & Then
+        #expect(UsageQuota.currencySymbol(for: "USD") == "$")
+        #expect(UsageQuota.currencySymbol(for: "CNY") == "¥")
+        #expect(UsageQuota.currencySymbol(for: "cny") == "¥") // case-insensitive
+        #expect(UsageQuota.currencySymbol(for: "EUR") == "€")
+        #expect(UsageQuota.currencySymbol(for: "XYZ") == "XYZ ")
+    }
+
+    @Test
     func `quota stores capped dollar spend amounts`() {
         let quota = UsageQuota(
             percentRemaining: 75,

@@ -234,6 +234,28 @@ public protocol MiniMaxSettingsRepository: ProviderSettingsRepository {
     func hasMinimaxApiKey() -> Bool
 }
 
+/// DeepSeek-specific settings repository, extending base ProviderSettingsRepository.
+/// Stores the API key and env-var name for DeepSeek balance monitoring.
+public protocol DeepSeekSettingsRepository: ProviderSettingsRepository {
+    /// Gets the environment variable name for DeepSeek API key (empty = use default DEEPSEEK_API_KEY)
+    func deepseekAuthEnvVar() -> String
+
+    /// Sets the environment variable name for DeepSeek API key
+    func setDeepSeekAuthEnvVar(_ envVar: String)
+
+    /// Saves the DeepSeek API key (for Settings UI input)
+    func saveDeepSeekApiKey(_ key: String)
+
+    /// Retrieves the DeepSeek API key
+    func getDeepSeekApiKey() -> String?
+
+    /// Deletes the DeepSeek API key
+    func deleteDeepSeekApiKey()
+
+    /// Checks if a DeepSeek API key is saved
+    func hasDeepSeekApiKey() -> Bool
+}
+
 /// Alibaba Coding Plan-specific settings repository, extending base ProviderSettingsRepository.
 /// Stores region, cookie source, manual cookie, and API key for Alibaba Coding Plan quota monitoring.
 public protocol AlibabaSettingsRepository: ProviderSettingsRepository {

@@ -3,7 +3,7 @@ import Domain
 
 /// UserDefaults-based implementation of ProviderSettingsRepository and its sub-protocols.
 /// Persists provider settings like isEnabled state and provider-specific configuration.
-public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository, CopilotSettingsRepository, BedrockSettingsRepository, ClaudeSettingsRepository, CodexSettingsRepository, KimiSettingsRepository, MiniMaxSettingsRepository, AlibabaSettingsRepository, HookSettingsRepository, @unchecked Sendable {
+public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository, CopilotSettingsRepository, BedrockSettingsRepository, ClaudeSettingsRepository, CodexSettingsRepository, KimiSettingsRepository, MiniMaxSettingsRepository, DeepSeekSettingsRepository, AlibabaSettingsRepository, HookSettingsRepository, @unchecked Sendable {
     /// Shared singleton instance
     public static let shared = UserDefaultsProviderSettingsRepository()
 
@@ -308,6 +308,32 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
         userDefaults.object(forKey: Keys.minimaxiApiKey) != nil
     }
 
+    // MARK: - DeepSeekSettingsRepository
+
+    public func deepseekAuthEnvVar() -> String {
+        userDefaults.string(forKey: Keys.deepseekAuthEnvVar) ?? ""
+    }
+
+    public func setDeepSeekAuthEnvVar(_ envVar: String) {
+        userDefaults.set(envVar, forKey: Keys.deepseekAuthEnvVar)
+    }
+
+    public func saveDeepSeekApiKey(_ key: String) {
+        userDefaults.set(key, forKey: Keys.deepseekApiKey)
+    }
+
+    public func getDeepSeekApiKey() -> String? {
+        userDefaults.string(forKey: Keys.deepseekApiKey)
+    }
+
+    public func deleteDeepSeekApiKey() {
+        userDefaults.removeObject(forKey: Keys.deepseekApiKey)
+    }
+
+    public func hasDeepSeekApiKey() -> Bool {
+        userDefaults.object(forKey: Keys.deepseekApiKey) != nil
+    }
+
     // MARK: - AlibabaSettingsRepository
 
     public func alibabaRegion() -> AlibabaRegion {
@@ -410,6 +436,9 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
         static let minimaxRegion = "providerConfig.minimaxRegion"
         static let minimaxiAuthEnvVar = "providerConfig.minimaxiAuthEnvVar"
         static let minimaxiApiKey = "com.claudebar.credentials.minimaxi-api-key"
+        // DeepSeek settings
+        static let deepseekAuthEnvVar = "providerConfig.deepseekAuthEnvVar"
+        static let deepseekApiKey = "com.claudebar.credentials.deepseek-api-key"
         // Alibaba settings
         static let alibabaRegion = "providerConfig.alibabaRegion"
         static let alibabaCookieSource = "providerConfig.alibabaCookieSource"

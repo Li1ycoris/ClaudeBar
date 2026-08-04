@@ -634,6 +634,11 @@ extension AppTheme {
             return scheme == .dark
                 ? Color(red: 0.91, green: 0.27, blue: 0.42)
                 : Color(red: 0.82, green: 0.20, blue: 0.35)
+        case "deepseek":
+            // DeepSeek brand blue
+            return scheme == .dark
+                ? Color(red: 0.42, green: 0.52, blue: 1.0)
+                : Color(red: 0.23, green: 0.35, blue: 0.92)
         case "alibaba":
             // Alibaba Cloud orange
             return scheme == .dark
@@ -694,6 +699,11 @@ extension AppTheme {
             secondaryColor = scheme == .dark
                 ? Color(red: 0.96, green: 0.53, blue: 0.24)
                 : Color(red: 0.86, green: 0.43, blue: 0.14)
+        case "deepseek":
+            // DeepSeek blue gradient
+            secondaryColor = scheme == .dark
+                ? Color(red: 0.22, green: 0.28, blue: 0.85)
+                : Color(red: 0.15, green: 0.20, blue: 0.75)
         case "alibaba":
             // Alibaba orange-to-red gradient
             secondaryColor = scheme == .dark
@@ -733,6 +743,7 @@ extension AppTheme {
         case "zai": return "ZaiIcon"
         case "bedrock": return "BedrockIcon"
         case "minimax": return "MiniMaxIcon"
+        case "deepseek": return "DeepSeekIcon"
         case "alibaba": return "AlibabaIcon"
         case "opencode-go": return "OpenCodeIcon"
         case "omp": return "OmpIcon"
@@ -752,6 +763,7 @@ extension AppTheme {
         case "zai": return "Z.ai"
         case "bedrock": return "AWS Bedrock"
         case "minimax": return "MiniMax"
+        case "deepseek": return "DeepSeek"
         case "alibaba": return "Alibaba"
         case "opencode-go": return "OpenCode Go"
         case "omp": return "Oh My Pi"
@@ -771,6 +783,7 @@ extension AppTheme {
         case "zai": return "z.square.fill"
         case "bedrock": return "cloud.fill" // AWS cloud icon
         case "minimax": return "waveform"
+        case "deepseek": return "d.square.fill"
         case "alibaba": return "cloud.fill"
         case "opencode-go": return "square.stack.3d.up.fill"
         case "omp": return "terminal.fill"
