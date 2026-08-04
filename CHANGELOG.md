@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.75] - 2026-08-04
+
 ### Added
 - Grok Build (xAI) provider: monitors weekly credit usage and per-product
   limits (Grok Build, Grok Imagine, Grok Voice) via the same billing endpoint
@@ -921,7 +925,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu bar interface with quota display
 - Automatic refresh every 5 minutes
 
-[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.73...HEAD
+[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.75...HEAD
+[0.4.75]: https://github.com/tddworks/ClaudeBar/compare/v0.4.73...v0.4.75
 [0.4.73]: https://github.com/tddworks/ClaudeBar/compare/v0.4.72...v0.4.73
 [0.4.72]: https://github.com/tddworks/ClaudeBar/compare/v0.4.71...v0.4.72
 [0.4.71]: https://github.com/tddworks/ClaudeBar/compare/v0.4.70...v0.4.71
