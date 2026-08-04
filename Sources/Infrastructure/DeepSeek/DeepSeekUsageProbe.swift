@@ -9,6 +9,9 @@ public struct DeepSeekUsageProbe: UsageProbe {
     private let networkClient: any NetworkClient
     private let settingsRepository: any DeepSeekSettingsRepository
     private let timeout: TimeInterval
+    /// Reads an environment variable by name. Injected so tests are
+    /// deterministic regardless of the host environment.
+    private let environmentValue: @Sendable (String) -> String?
 
     /// The DeepSeek balance endpoint
     static let balanceURL = URL(string: "https://api.deepseek.com/user/balance")!
@@ -16,11 +19,13 @@ public struct DeepSeekUsageProbe: UsageProbe {
     public init(
         networkClient: any NetworkClient = URLSession.shared,
         settingsRepository: any DeepSeekSettingsRepository,
-        timeout: TimeInterval = 30
+        timeout: TimeInterval = 30,
+        environmentValue: @escaping @Sendable (String) -> String? = { ProcessInfo.processInfo.environment[$0] }
     ) {
         self.networkClient = networkClient
         self.settingsRepository = settingsRepository
         self.timeout = timeout
+        self.environmentValue = environmentValue
     }
 
     // MARK: - Token Resolution
@@ -29,7 +34,7 @@ public struct DeepSeekUsageProbe: UsageProbe {
         // First, check environment variable if configured
         let envVarName = settingsRepository.deepseekAuthEnvVar()
         let effectiveEnvVar = envVarName.isEmpty ? "DEEPSEEK_API_KEY" : envVarName
-        if let envValue = ProcessInfo.processInfo.environment[effectiveEnvVar], !envValue.isEmpty {
+        if let envValue = environmentValue(effectiveEnvVar), !envValue.isEmpty {
             AppLog.probes.debug("DeepSeek: Using API key from env var '\(effectiveEnvVar)'")
             return envValue
         }
@@ -135,8 +140,12 @@ public struct DeepSeekUsageProbe: UsageProbe {
         let granted = selected.grantedBalance.flatMap { Decimal(string: $0, locale: posixLocale) }
         let toppedUp = selected.toppedUpBalance.flatMap { Decimal(string: $0, locale: posixLocale) }
 
+        // Balance has no cap → percent is 100 when available. When DeepSeek
+        // reports is_available == false, the balance can't be used for API
+        // calls, so surface the quota as depleted.
+        let percentRemaining: Double = response.isAvailable == false ? 0 : 100
         let quota = UsageQuota(
-            percentRemaining: 100, // no cap → percent is always 100
+            percentRemaining: percentRemaining,
             quotaType: .modelSpecific("Balance"),
             providerId: providerId,
             resetText: breakdownText(granted: granted, toppedUp: toppedUp, currency: selected.currency),

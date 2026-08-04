@@ -39,7 +39,9 @@ struct DeepSeekUsageProbeTests {
         }
         return DeepSeekUsageProbe(
             networkClient: networkClient,
-            settingsRepository: settingsRepository
+            settingsRepository: settingsRepository,
+            // Deterministic: no env var in tests, regardless of the host environment
+            environmentValue: { _ in nil }
         )
     }
 
@@ -178,9 +180,15 @@ struct DeepSeekUsageProbeTests {
 
         let probe = makeProbe(apiKey: "test-key", networkClient: mockNetwork)
 
-        // When & Then
-        await #expect(throws: ProbeError.self) {
-            try await probe.probe()
+        // When & Then: must be executionFailed specifically, not any ProbeError
+        do {
+            _ = try await probe.probe()
+            Issue.record("Expected ProbeError.executionFailed")
+        } catch {
+            guard case ProbeError.executionFailed = error else {
+                Issue.record("Expected ProbeError.executionFailed, got \(error)")
+                return
+            }
         }
     }
 }

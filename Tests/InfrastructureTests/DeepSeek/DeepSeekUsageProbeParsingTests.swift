@@ -76,6 +76,20 @@ struct DeepSeekUsageProbeParsingTests {
     }
     """
 
+    static let sampleUnavailableResponse = """
+    {
+      "is_available": false,
+      "balance_infos": [
+        {
+          "currency": "USD",
+          "total_balance": "5.00",
+          "granted_balance": "0.00",
+          "topped_up_balance": "5.00"
+        }
+      ]
+    }
+    """
+
     // MARK: - Parsing Tests
 
     @Test
@@ -175,6 +189,20 @@ struct DeepSeekUsageProbeParsingTests {
     }
 
     @Test
+    func `maps unavailable balance to depleted status`() throws {
+        // Given: is_available false means the balance can't be used for API calls
+        let data = Data(Self.sampleUnavailableResponse.utf8)
+
+        // When
+        let snapshot = try DeepSeekUsageProbe.parseResponse(data, providerId: "deepseek")
+
+        // Then: quota is depleted but the balance amount is still surfaced
+        #expect(snapshot.quotas[0].percentRemaining == 0)
+        #expect(snapshot.quotas[0].status == .depleted)
+        #expect(snapshot.quotas[0].dollarRemaining == Decimal(5))
+    }
+
+    @Test
     func `throws noData on empty balance_infos`() throws {
         // Given
         let data = Data(Self.sampleEmptyBalanceInfosResponse.utf8)
@@ -190,9 +218,15 @@ struct DeepSeekUsageProbeParsingTests {
         // Given
         let data = Data("not json".utf8)
 
-        // When & Then
-        #expect(throws: ProbeError.self) {
-            try DeepSeekUsageProbe.parseResponse(data, providerId: "deepseek")
+        // When & Then: must be parseFailed specifically, not any ProbeError
+        do {
+            _ = try DeepSeekUsageProbe.parseResponse(data, providerId: "deepseek")
+            Issue.record("Expected ProbeError.parseFailed")
+        } catch {
+            guard case ProbeError.parseFailed = error else {
+                Issue.record("Expected ProbeError.parseFailed, got \(error)")
+                return
+            }
         }
     }
 }
