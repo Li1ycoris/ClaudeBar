@@ -14,6 +14,7 @@ struct DeepSeekConfigCard: View {
     @State private var deepSeekApiKeyInput: String = ""
     @State private var deepSeekAuthEnvVarInput: String = ""
     @State private var showDeepSeekApiKey: Bool = false
+    @State private var hasStoredDeepSeekApiKey: Bool = false
     @State private var isTestingDeepSeek = false
     @State private var deepSeekTestResult: String?
 
@@ -53,6 +54,7 @@ struct DeepSeekConfigCard: View {
         )
         .onAppear {
             deepSeekAuthEnvVarInput = settings.deepseek.deepseekAuthEnvVar()
+            hasStoredDeepSeekApiKey = settings.deepseek.hasDeepSeekApiKey()
         }
     }
 
@@ -103,7 +105,7 @@ struct DeepSeekConfigCard: View {
 
                     Spacer()
 
-                    if settings.deepseek.hasDeepSeekApiKey() {
+                    if hasStoredDeepSeekApiKey {
                         HStack(spacing: 3) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 9))
@@ -243,9 +245,10 @@ struct DeepSeekConfigCard: View {
             }
 
             // Delete API key
-            if settings.deepseek.hasDeepSeekApiKey() {
+            if hasStoredDeepSeekApiKey {
                 Button {
                     settings.deepseek.deleteDeepSeekApiKey()
+                    hasStoredDeepSeekApiKey = false
                     deepSeekApiKeyInput = ""
                     deepSeekTestResult = nil
                 } label: {
@@ -267,25 +270,39 @@ struct DeepSeekConfigCard: View {
     private func testDeepSeekConnection() async {
         isTestingDeepSeek = true
         deepSeekTestResult = nil
+        defer { isTestingDeepSeek = false }
 
         settings.deepseek.setDeepSeekAuthEnvVar(deepSeekAuthEnvVarInput)
-        if !deepSeekApiKeyInput.isEmpty {
+        let apiKey = deepSeekApiKeyInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !apiKey.isEmpty {
             AppLog.credentials.info("Saving DeepSeek API key for connection test")
-            settings.deepseek.saveDeepSeekApiKey(deepSeekApiKeyInput)
+            settings.deepseek.saveDeepSeekApiKey(apiKey)
+            hasStoredDeepSeekApiKey = true
             deepSeekApiKeyInput = ""
         }
 
-        AppLog.credentials.info("Testing DeepSeek connection via provider refresh")
-        await monitor.refresh(providerId: "deepseek")
-
-        if let error = monitor.provider(for: "deepseek")?.lastError {
-            AppLog.credentials.error("DeepSeek connection test failed: \(error.localizedDescription)")
-            deepSeekTestResult = "Failed: \(error.localizedDescription)"
-        } else {
-            AppLog.credentials.info("DeepSeek connection test succeeded")
-            deepSeekTestResult = "Success: Connection verified"
+        guard let provider = monitor.provider(for: "deepseek") else {
+            deepSeekTestResult = "Failed: DeepSeek provider is not registered"
+            return
         }
 
-        isTestingDeepSeek = false
+        guard await provider.isAvailable() else {
+            deepSeekTestResult = "Failed: No API key found"
+            return
+        }
+
+        AppLog.credentials.info("Testing DeepSeek connection via provider refresh")
+        do {
+            _ = try await provider.refresh()
+            AppLog.credentials.info("DeepSeek connection test succeeded")
+            deepSeekTestResult = "Success: Connection verified"
+        } catch ProbeError.authenticationRequired {
+            let message = "DeepSeek rejected the API key. New keys may take a moment to activate."
+            AppLog.credentials.error("DeepSeek connection test failed: \(message)")
+            deepSeekTestResult = "Failed: \(message)"
+        } catch {
+            AppLog.credentials.error("DeepSeek connection test failed: \(error.localizedDescription)")
+            deepSeekTestResult = "Failed: \(error.localizedDescription)"
+        }
     }
 }
