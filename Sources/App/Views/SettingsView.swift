@@ -36,6 +36,7 @@ struct SettingsContentView: View {
         static let minimax = "minimax"
         static let deepseek = "deepseek"
         static let alibaba = "alibaba"
+        static let vercelGateway = "vercel-gateway"
     }
 
     private var isCopilotEnabled: Bool {
@@ -72,6 +73,10 @@ struct SettingsContentView: View {
 
     private var isAlibabaEnabled: Bool {
         monitor.provider(for: ProviderID.alibaba)?.isEnabled ?? false
+    }
+
+    private var isVercelEnabled: Bool {
+        monitor.provider(for: ProviderID.vercelGateway)?.isEnabled ?? false
     }
 
     /// Extension providers that are enabled and have config fields declared in their manifest.
@@ -127,6 +132,10 @@ struct SettingsContentView: View {
                     }
                     if isAlibabaEnabled {
                         AlibabaConfigCard(monitor: monitor)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                    if isVercelEnabled {
+                        VercelConfigCard(monitor: monitor)
                             .transition(.opacity.combined(with: .move(edge: .top)))
                     }
                     if isCopilotEnabled {

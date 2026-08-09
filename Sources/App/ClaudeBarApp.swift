@@ -104,6 +104,10 @@ struct ClaudeBarApp: App {
                 probe: DeepSeekUsageProbe(settingsRepository: settingsRepository),
                 settingsRepository: settingsRepository
             ),
+            VercelProvider(
+                probe: VercelUsageProbe(settingsRepository: settingsRepository),
+                settingsRepository: settingsRepository
+            ),
             AlibabaProvider(
                 probe: AlibabaUsageProbe(settingsRepository: settingsRepository, cookieProvider: AlibabaBrowserCookieProvider()),
                 settingsRepository: settingsRepository

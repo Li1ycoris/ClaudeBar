@@ -17,6 +17,7 @@ public final class JSONSettingsRepository:
     KimiSettingsRepository,
     MiniMaxSettingsRepository,
     AlibabaSettingsRepository,
+    VercelSettingsRepository,
     HookSettingsRepository,
     @unchecked Sendable
 {
@@ -517,6 +518,34 @@ public final class JSONSettingsRepository:
 
     public func hasMinimaxApiKey() -> Bool {
         getMinimaxApiKey() != nil
+    }
+
+    // MARK: - VercelSettingsRepository
+
+    public func vercelAuthEnvVar() -> String {
+        store.read(key: "vercel.authEnvVar") ?? ""
+    }
+
+    public func setVercelAuthEnvVar(_ envVar: String) {
+        store.write(value: envVar, key: "vercel.authEnvVar")
+    }
+
+    // Vercel Credentials (UserDefaults for now)
+
+    public func saveVercelApiKey(_ key: String) {
+        credentials.set(key, forKey: "com.claudebar.credentials.vercel-api-key")
+    }
+
+    public func getVercelApiKey() -> String? {
+        credentials.string(forKey: "com.claudebar.credentials.vercel-api-key")
+    }
+
+    public func deleteVercelApiKey() {
+        credentials.removeObject(forKey: "com.claudebar.credentials.vercel-api-key")
+    }
+
+    public func hasVercelApiKey() -> Bool {
+        getVercelApiKey() != nil
     }
 }
 
