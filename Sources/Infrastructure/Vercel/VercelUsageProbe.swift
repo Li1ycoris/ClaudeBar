@@ -92,18 +92,13 @@ public struct VercelUsageProbe: UsageProbe {
             throw ProbeError.executionFailed("Vercel API returned HTTP \(httpResponse.statusCode)")
         }
 
-        // Log raw response at debug level
-        if let responseText = String(data: data, encoding: .utf8) {
-            AppLog.probes.debug("Vercel API response: \(responseText.prefix(500))")
-        }
+        AppLog.probes.debug("Vercel API response received (\(data.count) bytes)")
 
         let snapshot = try Self.parseResponse(data, providerId: "vercel-gateway")
 
         AppLog.probes.info("Vercel probe success: \(snapshot.quotas.count) quotas found")
         for quota in snapshot.quotas {
-            if let dollar = quota.formattedDollarRemaining {
-                AppLog.probes.info("  - \(quota.quotaType.displayName): \(dollar) remaining")
-            }
+            AppLog.probes.info("  - \(quota.quotaType.displayName) balance received")
         }
 
         return snapshot

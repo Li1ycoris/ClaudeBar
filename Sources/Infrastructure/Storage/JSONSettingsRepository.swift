@@ -6,7 +6,8 @@ import Domain
 /// (including all sub-protocols) + HookSettingsRepository.
 ///
 /// Backed by `JSONSettingsStore` reading/writing `~/.claudebar/settings.json`.
-/// Credentials (tokens, API keys) use UserDefaults for now (Keychain migration later).
+/// Vercel credentials use the injected secure store; legacy provider credentials
+/// remain in UserDefaults pending their own migrations.
 public final class JSONSettingsRepository:
     AppSettingsRepository,
     ZaiSettingsRepository,
@@ -26,10 +27,16 @@ public final class JSONSettingsRepository:
 
     private let store: JSONSettingsStore
     private let credentials: UserDefaults
+    private let secureCredentials: any CredentialRepository
 
-    public init(store: JSONSettingsStore, credentials: UserDefaults = .standard) {
+    public init(
+        store: JSONSettingsStore,
+        credentials: UserDefaults = .standard,
+        secureCredentials: any CredentialRepository = KeychainCredentialRepository.shared
+    ) {
         self.store = store
         self.credentials = credentials
+        self.secureCredentials = secureCredentials
     }
 
     // MARK: - AppSettingsRepository
@@ -530,23 +537,37 @@ public final class JSONSettingsRepository:
         store.write(value: envVar, key: "vercel.authEnvVar")
     }
 
-    // Vercel Credentials (UserDefaults for now)
-
     public func saveVercelApiKey(_ key: String) {
-        credentials.set(key, forKey: "com.claudebar.credentials.vercel-api-key")
+        secureCredentials.save(key, forKey: CredentialKey.vercelApiKey)
+        credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
     }
 
     public func getVercelApiKey() -> String? {
-        credentials.string(forKey: "com.claudebar.credentials.vercel-api-key")
+        if let key = secureCredentials.get(forKey: CredentialKey.vercelApiKey) {
+            return key
+        }
+
+        guard let legacyKey = credentials.string(forKey: Self.legacyVercelApiKeyKey) else {
+            return nil
+        }
+
+        secureCredentials.save(legacyKey, forKey: CredentialKey.vercelApiKey)
+        if secureCredentials.exists(forKey: CredentialKey.vercelApiKey) {
+            credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
+        }
+        return legacyKey
     }
 
     public func deleteVercelApiKey() {
-        credentials.removeObject(forKey: "com.claudebar.credentials.vercel-api-key")
+        secureCredentials.delete(forKey: CredentialKey.vercelApiKey)
+        credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
     }
 
     public func hasVercelApiKey() -> Bool {
         getVercelApiKey() != nil
     }
+
+    private static let legacyVercelApiKeyKey = "com.claudebar.credentials.vercel-api-key"
 }
 
 // MARK: - DeepSeekSettingsRepository

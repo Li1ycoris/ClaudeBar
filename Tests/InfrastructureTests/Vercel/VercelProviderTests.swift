@@ -9,7 +9,14 @@ import Mockable
 struct VercelProviderTests {
     private func makeSettingsRepository() -> UserDefaultsProviderSettingsRepository {
         let defaults = UserDefaults(suiteName: "VercelProviderTests.\(UUID().uuidString)")!
-        return UserDefaultsProviderSettingsRepository(userDefaults: defaults)
+        let secureCredentials = UserDefaultsCredentialRepository(
+            defaults: defaults,
+            keyPrefix: "VercelProviderTests.secure."
+        )
+        return UserDefaultsProviderSettingsRepository(
+            userDefaults: defaults,
+            secureCredentials: secureCredentials
+        )
     }
 
     @Test
@@ -87,5 +94,58 @@ struct VercelProviderTests {
         #expect(provider.lastError != nil)
         #expect(provider.snapshot == nil)
         #expect(provider.isSyncing == false)
+    }
+
+    @Test
+    func `refresh rejects overlapping requests without racing provider state`() async throws {
+        let snapshot = UsageSnapshot(
+            providerId: "vercel-gateway",
+            quotas: [UsageQuota(
+                percentRemaining: 100,
+                quotaType: .timeLimit("AI Gateway Credits"),
+                providerId: "vercel-gateway",
+                dollarRemaining: Decimal(string: "10.50")
+            )],
+            capturedAt: Date()
+        )
+        let probe = DelayedUsageProbe(snapshot: snapshot)
+        let provider = VercelProvider(probe: probe, settingsRepository: makeSettingsRepository())
+
+        let firstRefresh = Task { try await provider.refresh() }
+        while await probe.probeCallCount == 0 {
+            await Task.yield()
+        }
+
+        #expect(provider.isSyncing == true)
+        await #expect(throws: ProbeError.executionFailed("Vercel refresh already in progress")) {
+            try await provider.refresh()
+        }
+        #expect(provider.isSyncing == true)
+
+        let result = try await firstRefresh.value
+
+        #expect(result == snapshot)
+        #expect(provider.snapshot == snapshot)
+        #expect(provider.isSyncing == false)
+        #expect(await probe.probeCallCount == 1)
+    }
+}
+
+private actor DelayedUsageProbe: UsageProbe {
+    private(set) var probeCallCount = 0
+    private let snapshot: UsageSnapshot
+
+    init(snapshot: UsageSnapshot) {
+        self.snapshot = snapshot
+    }
+
+    func probe() async throws -> UsageSnapshot {
+        probeCallCount += 1
+        try await Task.sleep(for: .milliseconds(100))
+        return snapshot
+    }
+
+    func isAvailable() async -> Bool {
+        true
     }
 }

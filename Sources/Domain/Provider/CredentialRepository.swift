@@ -22,4 +22,5 @@ public protocol CredentialRepository: Sendable {
 public enum CredentialKey {
     public static let githubToken = "github-copilot-token"
     public static let githubUsername = "github-username"
+    public static let vercelApiKey = "vercel-ai-gateway-api-key"
 }

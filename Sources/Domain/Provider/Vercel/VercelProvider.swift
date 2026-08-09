@@ -68,6 +68,10 @@ public final class VercelProvider: AIProvider {
     /// Sets isSyncing during refresh and captures any errors.
     @discardableResult
     public func refresh() async throws -> UsageSnapshot {
+        guard !isSyncing else {
+            throw ProbeError.executionFailed("Vercel refresh already in progress")
+        }
+
         isSyncing = true
         defer { isSyncing = false }
 

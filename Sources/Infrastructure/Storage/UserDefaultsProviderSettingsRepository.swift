@@ -9,11 +9,18 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
 
     /// The UserDefaults instance to use
     private let userDefaults: UserDefaults
+    private let secureCredentials: any CredentialRepository
 
-    /// Creates a new repository with the specified UserDefaults instance
-    /// - Parameter userDefaults: The UserDefaults to use (defaults to .standard)
-    public init(userDefaults: UserDefaults = .standard) {
+    /// Creates a repository with settings in UserDefaults and secrets in Keychain.
+    /// - Parameters:
+    ///   - userDefaults: The UserDefaults instance used for non-sensitive settings.
+    ///   - secureCredentials: The credential store used for sensitive values.
+    public init(
+        userDefaults: UserDefaults = .standard,
+        secureCredentials: any CredentialRepository = KeychainCredentialRepository.shared
+    ) {
         self.userDefaults = userDefaults
+        self.secureCredentials = secureCredentials
     }
 
     // MARK: - ProviderSettingsRepository
@@ -345,19 +352,33 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
     }
 
     public func saveVercelApiKey(_ key: String) {
-        userDefaults.set(key, forKey: Keys.vercelApiKey)
+        secureCredentials.save(key, forKey: CredentialKey.vercelApiKey)
+        userDefaults.removeObject(forKey: Keys.vercelApiKey)
     }
 
     public func getVercelApiKey() -> String? {
-        userDefaults.string(forKey: Keys.vercelApiKey)
+        if let key = secureCredentials.get(forKey: CredentialKey.vercelApiKey) {
+            return key
+        }
+
+        guard let legacyKey = userDefaults.string(forKey: Keys.vercelApiKey) else {
+            return nil
+        }
+
+        secureCredentials.save(legacyKey, forKey: CredentialKey.vercelApiKey)
+        if secureCredentials.exists(forKey: CredentialKey.vercelApiKey) {
+            userDefaults.removeObject(forKey: Keys.vercelApiKey)
+        }
+        return legacyKey
     }
 
     public func deleteVercelApiKey() {
+        secureCredentials.delete(forKey: CredentialKey.vercelApiKey)
         userDefaults.removeObject(forKey: Keys.vercelApiKey)
     }
 
     public func hasVercelApiKey() -> Bool {
-        userDefaults.object(forKey: Keys.vercelApiKey) != nil
+        getVercelApiKey() != nil
     }
 
     // MARK: - AlibabaSettingsRepository

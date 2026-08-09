@@ -28,7 +28,14 @@ struct VercelUsageProbeTests {
         networkClient: any NetworkClient = MockNetworkClient()
     ) -> VercelUsageProbe {
         let defaults = UserDefaults(suiteName: "VercelProbeTests.\(UUID().uuidString)")!
-        let settingsRepository = UserDefaultsProviderSettingsRepository(userDefaults: defaults)
+        let secureCredentials = UserDefaultsCredentialRepository(
+            defaults: defaults,
+            keyPrefix: "VercelProbeTests.secure."
+        )
+        let settingsRepository = UserDefaultsProviderSettingsRepository(
+            userDefaults: defaults,
+            secureCredentials: secureCredentials
+        )
         settingsRepository.setVercelAuthEnvVar(envVar)
         if let apiKey {
             settingsRepository.saveVercelApiKey(apiKey)
