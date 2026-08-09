@@ -10,7 +10,7 @@ struct KeychainCredentialRepositoryTests {
         let repository = KeychainCredentialRepository(
             service: "com.tddworks.claudebar.tests.\(UUID().uuidString)"
         )
-        defer { repository.delete(forKey: key) }
+        defer { _ = repository.delete(forKey: key) }
 
         #expect(repository.get(forKey: key) == nil)
         #expect(repository.exists(forKey: key) == false)
@@ -22,7 +22,7 @@ struct KeychainCredentialRepositoryTests {
         repository.save("updated-value", forKey: key)
         #expect(repository.get(forKey: key) == "updated-value")
 
-        repository.delete(forKey: key)
+        #expect(repository.delete(forKey: key) == true)
         #expect(repository.get(forKey: key) == nil)
         #expect(repository.exists(forKey: key) == false)
     }
@@ -33,7 +33,7 @@ struct KeychainCredentialRepositoryTests {
             service: "com.tddworks.claudebar.tests.\(UUID().uuidString)"
         )
 
-        repository.delete(forKey: "missing")
+        #expect(repository.delete(forKey: "missing") == true)
 
         #expect(repository.get(forKey: "missing") == nil)
     }

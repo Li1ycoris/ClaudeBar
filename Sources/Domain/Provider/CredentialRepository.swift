@@ -12,7 +12,9 @@ public protocol CredentialRepository: Sendable {
     func get(forKey key: String) -> String?
 
     /// Deletes the credential for the given key.
-    func delete(forKey key: String)
+    /// - Returns: `true` when the credential is absent after the operation.
+    @discardableResult
+    func delete(forKey key: String) -> Bool
 
     /// Checks if a credential exists for the given key.
     func exists(forKey key: String) -> Bool

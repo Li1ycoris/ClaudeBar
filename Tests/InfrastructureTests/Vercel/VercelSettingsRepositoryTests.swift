@@ -33,7 +33,7 @@ struct VercelSettingsRepositoryTests {
         #expect(secureCredentials.get(forKey: CredentialKey.vercelApiKey) == "vck_test")
         #expect(defaults.object(forKey: "com.claudebar.credentials.vercel-api-key") == nil)
 
-        repository.deleteVercelApiKey()
+        #expect(repository.deleteVercelApiKey() == true)
         #expect(repository.getVercelApiKey() == nil)
         #expect(repository.hasVercelApiKey() == false)
     }
@@ -71,7 +71,7 @@ struct VercelSettingsRepositoryTests {
         #expect(secureCredentials.get(forKey: CredentialKey.vercelApiKey) == "vck_test")
         #expect(credentials.object(forKey: "com.claudebar.credentials.vercel-api-key") == nil)
 
-        repository.deleteVercelApiKey()
+        #expect(repository.deleteVercelApiKey() == true)
         #expect(repository.getVercelApiKey() == nil)
         #expect(repository.hasVercelApiKey() == false)
     }
@@ -106,7 +106,7 @@ struct VercelSettingsRepositoryTests {
         defaults.set("legacy-key", forKey: "com.claudebar.credentials.vercel-api-key")
         let repository = UserDefaultsProviderSettingsRepository(
             userDefaults: defaults,
-            secureCredentials: FailingSaveCredentialRepository()
+            secureCredentials: FailingCredentialRepository()
         )
 
         #expect(repository.getVercelApiKey() == "legacy-key")
@@ -153,17 +153,65 @@ struct VercelSettingsRepositoryTests {
         let repository = JSONSettingsRepository(
             store: JSONSettingsStore(fileURL: tempDirectory.appendingPathComponent("settings.json")),
             credentials: credentials,
-            secureCredentials: FailingSaveCredentialRepository()
+            secureCredentials: FailingCredentialRepository()
         )
 
         #expect(repository.getVercelApiKey() == "legacy-key")
         #expect(credentials.string(forKey: "com.claudebar.credentials.vercel-api-key") == "legacy-key")
     }
+
+    @Test
+    func `failed secure overwrite preserves the legacy Vercel API key`() {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("VercelFailedOverwriteJSONTests.\(UUID().uuidString)")
+        let suiteName = "VercelFailedOverwriteJSONCredentialsTests.\(UUID().uuidString)"
+        let credentials = UserDefaults(suiteName: suiteName)!
+        defer {
+            try? FileManager.default.removeItem(at: tempDirectory)
+            credentials.removePersistentDomain(forName: suiteName)
+        }
+        credentials.set("legacy-key", forKey: "com.claudebar.credentials.vercel-api-key")
+        let repository = JSONSettingsRepository(
+            store: JSONSettingsStore(fileURL: tempDirectory.appendingPathComponent("settings.json")),
+            credentials: credentials,
+            secureCredentials: FailingCredentialRepository(storedValue: "stale-secure-key")
+        )
+
+        repository.saveVercelApiKey("replacement-key")
+
+        #expect(credentials.string(forKey: "com.claudebar.credentials.vercel-api-key") == "legacy-key")
+    }
+
+    @Test
+    func `secure deletion failure is reported and retains the Vercel API key`() {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("VercelFailedDeleteJSONTests.\(UUID().uuidString)")
+        let suiteName = "VercelFailedDeleteJSONCredentialsTests.\(UUID().uuidString)"
+        let credentials = UserDefaults(suiteName: suiteName)!
+        defer {
+            try? FileManager.default.removeItem(at: tempDirectory)
+            credentials.removePersistentDomain(forName: suiteName)
+        }
+        let repository = JSONSettingsRepository(
+            store: JSONSettingsStore(fileURL: tempDirectory.appendingPathComponent("settings.json")),
+            credentials: credentials,
+            secureCredentials: FailingCredentialRepository(storedValue: "stored-key")
+        )
+
+        #expect(repository.deleteVercelApiKey() == false)
+        #expect(repository.getVercelApiKey() == "stored-key")
+    }
 }
 
-private struct FailingSaveCredentialRepository: CredentialRepository {
+private struct FailingCredentialRepository: CredentialRepository {
+    let storedValue: String?
+
+    init(storedValue: String? = nil) {
+        self.storedValue = storedValue
+    }
+
     func save(_: String, forKey _: String) {}
-    func get(forKey _: String) -> String? { nil }
-    func delete(forKey _: String) {}
-    func exists(forKey _: String) -> Bool { false }
+    func get(forKey _: String) -> String? { storedValue }
+    func delete(forKey _: String) -> Bool { false }
+    func exists(forKey _: String) -> Bool { storedValue != nil }
 }

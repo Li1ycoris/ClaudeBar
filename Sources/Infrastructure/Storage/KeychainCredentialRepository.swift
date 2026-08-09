@@ -61,12 +61,16 @@ public final class KeychainCredentialRepository: CredentialRepository, @unchecke
         return String(data: data, encoding: .utf8)
     }
 
-    /// Deletes a credential from Keychain.
-    public func delete(forKey key: String) {
+    /// Deletes a credential from Keychain and reports whether it is absent.
+    @discardableResult
+    public func delete(forKey key: String) -> Bool {
         let status = SecItemDelete(baseQuery(forKey: key) as CFDictionary)
-        if status != errSecSuccess, status != errSecItemNotFound {
-            logFailure(operation: "delete", status: status)
+        if status == errSecSuccess || status == errSecItemNotFound {
+            return true
         }
+
+        logFailure(operation: "delete", status: status)
+        return false
     }
 
     /// Checks whether a credential can be retrieved from Keychain.

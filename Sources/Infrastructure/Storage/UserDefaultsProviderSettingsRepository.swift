@@ -1,8 +1,9 @@
 import Foundation
 import Domain
 
-/// UserDefaults-based implementation of ProviderSettingsRepository and its sub-protocols.
-/// Persists provider settings like isEnabled state and provider-specific configuration.
+/// Legacy/test UserDefaults implementation of provider settings protocols.
+/// Production app persistence uses `JSONSettingsRepository`; this implementation
+/// supports legacy migration and isolated tests with injected UserDefaults suites.
 public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository, CopilotSettingsRepository, BedrockSettingsRepository, ClaudeSettingsRepository, CodexSettingsRepository, KimiSettingsRepository, MiniMaxSettingsRepository, DeepSeekSettingsRepository, AlibabaSettingsRepository, VercelSettingsRepository, HookSettingsRepository, @unchecked Sendable {
     /// Shared singleton instance
     public static let shared = UserDefaultsProviderSettingsRepository()
@@ -368,7 +369,8 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
         vercelCredentials.get()
     }
 
-    public func deleteVercelApiKey() {
+    @discardableResult
+    public func deleteVercelApiKey() -> Bool {
         vercelCredentials.delete()
     }
 

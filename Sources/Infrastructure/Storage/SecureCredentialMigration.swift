@@ -14,7 +14,7 @@ struct SecureCredentialMigration {
     /// Saves a credential securely and removes its legacy copy after verification.
     func save(_ value: String) {
         secureStore.save(value, forKey: secureKey)
-        if secureStore.exists(forKey: secureKey) {
+        if secureStore.get(forKey: secureKey) == value {
             legacyStore.removeObject(forKey: legacyKey)
         }
     }
@@ -33,10 +33,16 @@ struct SecureCredentialMigration {
         return legacyValue
     }
 
-    /// Deletes both secure and legacy copies of the credential.
-    func delete() {
-        secureStore.delete(forKey: secureKey)
+    /// Deletes both credential copies after secure deletion succeeds.
+    /// - Returns: `true` when both copies are absent after the operation.
+    @discardableResult
+    func delete() -> Bool {
+        guard secureStore.delete(forKey: secureKey) else {
+            return false
+        }
+
         legacyStore.removeObject(forKey: legacyKey)
+        return legacyStore.object(forKey: legacyKey) == nil
     }
 
     /// Returns whether a secure or legacy credential is available.

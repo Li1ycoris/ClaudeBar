@@ -554,7 +554,8 @@ public final class JSONSettingsRepository:
         vercelCredentials.get()
     }
 
-    public func deleteVercelApiKey() {
+    @discardableResult
+    public func deleteVercelApiKey() -> Bool {
         vercelCredentials.delete()
     }
 

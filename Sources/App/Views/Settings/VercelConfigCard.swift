@@ -246,10 +246,14 @@ struct VercelConfigCard: View {
             // Delete API key
             if hasStoredVercelApiKey {
                 Button {
-                    settings.vercel.deleteVercelApiKey()
-                    hasStoredVercelApiKey = false
-                    vercelApiKeyInput = ""
-                    vercelTestResult = nil
+                    if settings.vercel.deleteVercelApiKey() {
+                        hasStoredVercelApiKey = false
+                        vercelApiKeyInput = ""
+                        vercelTestResult = nil
+                    } else {
+                        hasStoredVercelApiKey = settings.vercel.hasVercelApiKey()
+                        vercelTestResult = "Failed to remove API key from Keychain"
+                    }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "trash.fill")

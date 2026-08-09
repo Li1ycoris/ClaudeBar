@@ -291,7 +291,8 @@ public protocol AlibabaSettingsRepository: ProviderSettingsRepository {
 }
 
 /// Vercel AI Gateway-specific settings repository, extending base ProviderSettingsRepository.
-/// Stores the AI Gateway API key for querying the team's credits balance.
+/// Production settings use `JSONSettingsRepository`; the UserDefaults implementation
+/// remains available as a legacy migration adapter and isolated test repository.
 public protocol VercelSettingsRepository: ProviderSettingsRepository {
     /// Gets the environment variable name for the AI Gateway API key (empty = use default AI_GATEWAY_API_KEY)
     func vercelAuthEnvVar() -> String
@@ -305,8 +306,10 @@ public protocol VercelSettingsRepository: ProviderSettingsRepository {
     /// Retrieves the AI Gateway API key
     func getVercelApiKey() -> String?
 
-    /// Deletes the AI Gateway API key
-    func deleteVercelApiKey()
+    /// Deletes the AI Gateway API key.
+    /// - Returns: `true` when the credential is absent after the operation.
+    @discardableResult
+    func deleteVercelApiKey() -> Bool
 
     /// Checks if an AI Gateway API key is saved
     func hasVercelApiKey() -> Bool
