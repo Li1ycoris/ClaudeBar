@@ -112,7 +112,10 @@ struct VercelProviderTests {
         let provider = VercelProvider(probe: probe, settingsRepository: makeSettingsRepository())
 
         let firstRefresh = Task { try await provider.refresh() }
+        var waitIterations = 0
         while await probe.probeCallCount == 0 {
+            waitIterations += 1
+            try #require(waitIterations < 10_000)
             await Task.yield()
         }
 

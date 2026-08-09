@@ -99,6 +99,21 @@ struct VercelSettingsRepositoryTests {
     }
 
     @Test
+    func `user defaults repository preserves legacy Vercel API key when secure migration fails`() {
+        let suiteName = "VercelFailedMigrationTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set("legacy-key", forKey: "com.claudebar.credentials.vercel-api-key")
+        let repository = UserDefaultsProviderSettingsRepository(
+            userDefaults: defaults,
+            secureCredentials: FailingSaveCredentialRepository()
+        )
+
+        #expect(repository.getVercelApiKey() == "legacy-key")
+        #expect(defaults.string(forKey: "com.claudebar.credentials.vercel-api-key") == "legacy-key")
+    }
+
+    @Test
     func `JSON repository migrates legacy Vercel API key`() {
         let tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent("VercelLegacyJSONTests.\(UUID().uuidString)")
@@ -123,4 +138,32 @@ struct VercelSettingsRepositoryTests {
         #expect(secureCredentials.get(forKey: CredentialKey.vercelApiKey) == "legacy-key")
         #expect(credentials.object(forKey: "com.claudebar.credentials.vercel-api-key") == nil)
     }
+
+    @Test
+    func `JSON repository preserves legacy Vercel API key when secure migration fails`() {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("VercelFailedMigrationJSONTests.\(UUID().uuidString)")
+        let suiteName = "VercelFailedMigrationJSONCredentialsTests.\(UUID().uuidString)"
+        let credentials = UserDefaults(suiteName: suiteName)!
+        defer {
+            try? FileManager.default.removeItem(at: tempDirectory)
+            credentials.removePersistentDomain(forName: suiteName)
+        }
+        credentials.set("legacy-key", forKey: "com.claudebar.credentials.vercel-api-key")
+        let repository = JSONSettingsRepository(
+            store: JSONSettingsStore(fileURL: tempDirectory.appendingPathComponent("settings.json")),
+            credentials: credentials,
+            secureCredentials: FailingSaveCredentialRepository()
+        )
+
+        #expect(repository.getVercelApiKey() == "legacy-key")
+        #expect(credentials.string(forKey: "com.claudebar.credentials.vercel-api-key") == "legacy-key")
+    }
+}
+
+private struct FailingSaveCredentialRepository: CredentialRepository {
+    func save(_: String, forKey _: String) {}
+    func get(forKey _: String) -> String? { nil }
+    func delete(forKey _: String) {}
+    func exists(forKey _: String) -> Bool { false }
 }

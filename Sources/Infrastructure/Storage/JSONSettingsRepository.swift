@@ -29,6 +29,15 @@ public final class JSONSettingsRepository:
     private let credentials: UserDefaults
     private let secureCredentials: any CredentialRepository
 
+    private var vercelCredentials: SecureCredentialMigration {
+        SecureCredentialMigration(
+            secureStore: secureCredentials,
+            legacyStore: credentials,
+            secureKey: CredentialKey.vercelApiKey,
+            legacyKey: Self.legacyVercelApiKeyKey
+        )
+    }
+
     public init(
         store: JSONSettingsStore,
         credentials: UserDefaults = .standard,
@@ -538,33 +547,19 @@ public final class JSONSettingsRepository:
     }
 
     public func saveVercelApiKey(_ key: String) {
-        secureCredentials.save(key, forKey: CredentialKey.vercelApiKey)
-        credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
+        vercelCredentials.save(key)
     }
 
     public func getVercelApiKey() -> String? {
-        if let key = secureCredentials.get(forKey: CredentialKey.vercelApiKey) {
-            return key
-        }
-
-        guard let legacyKey = credentials.string(forKey: Self.legacyVercelApiKeyKey) else {
-            return nil
-        }
-
-        secureCredentials.save(legacyKey, forKey: CredentialKey.vercelApiKey)
-        if secureCredentials.exists(forKey: CredentialKey.vercelApiKey) {
-            credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
-        }
-        return legacyKey
+        vercelCredentials.get()
     }
 
     public func deleteVercelApiKey() {
-        secureCredentials.delete(forKey: CredentialKey.vercelApiKey)
-        credentials.removeObject(forKey: Self.legacyVercelApiKeyKey)
+        vercelCredentials.delete()
     }
 
     public func hasVercelApiKey() -> Bool {
-        getVercelApiKey() != nil
+        vercelCredentials.exists()
     }
 
     private static let legacyVercelApiKeyKey = "com.claudebar.credentials.vercel-api-key"
