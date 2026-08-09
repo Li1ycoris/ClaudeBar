@@ -1,19 +1,36 @@
 import Foundation
 import Domain
 
-/// UserDefaults-based implementation of ProviderSettingsRepository and its sub-protocols.
-/// Persists provider settings like isEnabled state and provider-specific configuration.
-public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository, CopilotSettingsRepository, BedrockSettingsRepository, ClaudeSettingsRepository, CodexSettingsRepository, KimiSettingsRepository, MiniMaxSettingsRepository, DeepSeekSettingsRepository, AlibabaSettingsRepository, HookSettingsRepository, @unchecked Sendable {
+/// Legacy/test UserDefaults implementation of provider settings protocols.
+/// Production app persistence uses `JSONSettingsRepository`; this implementation
+/// supports legacy migration and isolated tests with injected UserDefaults suites.
+public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository, CopilotSettingsRepository, BedrockSettingsRepository, ClaudeSettingsRepository, CodexSettingsRepository, KimiSettingsRepository, MiniMaxSettingsRepository, DeepSeekSettingsRepository, AlibabaSettingsRepository, VercelSettingsRepository, HookSettingsRepository, @unchecked Sendable {
     /// Shared singleton instance
     public static let shared = UserDefaultsProviderSettingsRepository()
 
     /// The UserDefaults instance to use
     private let userDefaults: UserDefaults
+    private let secureCredentials: any CredentialRepository
 
-    /// Creates a new repository with the specified UserDefaults instance
-    /// - Parameter userDefaults: The UserDefaults to use (defaults to .standard)
-    public init(userDefaults: UserDefaults = .standard) {
+    private var vercelCredentials: SecureCredentialMigration {
+        SecureCredentialMigration(
+            secureStore: secureCredentials,
+            legacyStore: userDefaults,
+            secureKey: CredentialKey.vercelApiKey,
+            legacyKey: Keys.vercelApiKey
+        )
+    }
+
+    /// Creates a repository with settings in UserDefaults and secrets in Keychain.
+    /// - Parameters:
+    ///   - userDefaults: The UserDefaults instance used for non-sensitive settings.
+    ///   - secureCredentials: The credential store used for sensitive values.
+    public init(
+        userDefaults: UserDefaults = .standard,
+        secureCredentials: any CredentialRepository = KeychainCredentialRepository.shared
+    ) {
         self.userDefaults = userDefaults
+        self.secureCredentials = secureCredentials
     }
 
     // MARK: - ProviderSettingsRepository
@@ -334,6 +351,33 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
         userDefaults.object(forKey: Keys.deepseekApiKey) != nil
     }
 
+    // MARK: - VercelSettingsRepository
+
+    public func vercelAuthEnvVar() -> String {
+        userDefaults.string(forKey: Keys.vercelAuthEnvVar) ?? ""
+    }
+
+    public func setVercelAuthEnvVar(_ envVar: String) {
+        userDefaults.set(envVar, forKey: Keys.vercelAuthEnvVar)
+    }
+
+    public func saveVercelApiKey(_ key: String) {
+        vercelCredentials.save(key)
+    }
+
+    public func getVercelApiKey() -> String? {
+        vercelCredentials.get()
+    }
+
+    @discardableResult
+    public func deleteVercelApiKey() -> Bool {
+        vercelCredentials.delete()
+    }
+
+    public func hasVercelApiKey() -> Bool {
+        vercelCredentials.exists()
+    }
+
     // MARK: - AlibabaSettingsRepository
 
     public func alibabaRegion() -> AlibabaRegion {
@@ -439,6 +483,9 @@ public final class UserDefaultsProviderSettingsRepository: ZaiSettingsRepository
         // DeepSeek settings
         static let deepseekAuthEnvVar = "providerConfig.deepseekAuthEnvVar"
         static let deepseekApiKey = "com.claudebar.credentials.deepseek-api-key"
+        // Vercel AI Gateway settings
+        static let vercelAuthEnvVar = "providerConfig.vercelAuthEnvVar"
+        static let vercelApiKey = "com.claudebar.credentials.vercel-api-key"
         // Alibaba settings
         static let alibabaRegion = "providerConfig.alibabaRegion"
         static let alibabaCookieSource = "providerConfig.alibabaCookieSource"
