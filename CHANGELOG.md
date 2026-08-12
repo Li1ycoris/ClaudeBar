@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The "Share Claude Code" button no longer appears on Claude Pro, API, or
+  not-yet-identified accounts. Anthropic issues invitation links to Max
+  subscribers only, so on other plans the button could do nothing but fail
+  silently. When a Max account's link fetch does fail, the popover now
+  explains why instead of ignoring the click, and the failure no longer marks
+  Claude's usage data as unavailable. (#243)
+
 ---
 
 ## [0.4.76] - 2026-08-09
