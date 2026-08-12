@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.77] - 2026-08-12
+
 ### Fixed
 - The "Share Claude Code" button no longer appears on Claude Pro, API, or
   not-yet-identified accounts. Anthropic issues invitation links to Max
@@ -940,7 +944,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu bar interface with quota display
 - Automatic refresh every 5 minutes
 
-[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.76...HEAD
+[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.77...HEAD
+[0.4.77]: https://github.com/tddworks/ClaudeBar/compare/v0.4.76...v0.4.77
 [0.4.76]: https://github.com/tddworks/ClaudeBar/compare/v0.4.75...v0.4.76
 [0.4.75]: https://github.com/tddworks/ClaudeBar/compare/v0.4.73...v0.4.75
 [0.4.73]: https://github.com/tddworks/ClaudeBar/compare/v0.4.72...v0.4.73
