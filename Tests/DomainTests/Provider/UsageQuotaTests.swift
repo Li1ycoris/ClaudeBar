@@ -120,10 +120,24 @@ struct UsageQuotaTests {
     }
 
     @Test
-    func `compactResetTime shows hours when under a day`() {
-        let resetDate = Date().addingTimeInterval(3.0 * 3600 + 15.0 * 60 + 30)
+    func `compactResetTime shows hours and minutes when under a day`() {
+        let resetDate = Date().addingTimeInterval(3.0 * 3600 + 58.0 * 60 + 30)
         let quota = UsageQuota(percentRemaining: 35, quotaType: .weekly, providerId: "claude", resetsAt: resetDate)
-        #expect(quota.compactResetTime == "3h")
+        #expect(quota.compactResetTime == "3:58")
+    }
+
+    @Test
+    func `compactResetTime pads minutes to two digits`() {
+        let resetDate = Date().addingTimeInterval(5.0 * 3600 + 5.0 * 60 + 30)
+        let quota = UsageQuota(percentRemaining: 35, quotaType: .weekly, providerId: "claude", resetsAt: resetDate)
+        #expect(quota.compactResetTime == "5:05")
+    }
+
+    @Test
+    func `compactResetTime shows whole hours with zero minutes`() {
+        let resetDate = Date().addingTimeInterval(3.0 * 3600 + 30)
+        let quota = UsageQuota(percentRemaining: 35, quotaType: .weekly, providerId: "claude", resetsAt: resetDate)
+        #expect(quota.compactResetTime == "3:00")
     }
 
     @Test
