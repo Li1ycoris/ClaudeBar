@@ -113,6 +113,16 @@ struct MenuContentView: View {
                     }
                 }
             }
+
+            // Share Pass Error Overlay
+            if let claudeProvider = selectedProvider as? ClaudeProvider,
+               let passError = claudeProvider.passError {
+                SharePassErrorOverlay(message: passError.localizedDescription) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        claudeProvider.clearPassError()
+                    }
+                }
+            }
         }
         .frame(width: 400)
         .fixedSize(horizontal: false, vertical: true)
@@ -853,7 +863,8 @@ struct MenuContentView: View {
                 showSharePass = true
             }
         } catch {
-            // Provider stores error in lastError
+            // Provider stores the error in passError, which the popover surfaces
+            // as SharePassErrorOverlay — a failed click is never silent.
         }
     }
 }
