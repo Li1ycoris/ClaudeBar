@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.78] - 2026-08-13
+
 ### Fixed
 - The menu bar reset countdown now shows hours with minutes in "H:MM" form
   (e.g. "3:58") instead of truncating to whole hours ("3h"), which could
@@ -951,7 +955,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu bar interface with quota display
 - Automatic refresh every 5 minutes
 
-[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.77...HEAD
+[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.78...HEAD
+[0.4.78]: https://github.com/tddworks/ClaudeBar/compare/v0.4.77...v0.4.78
 [0.4.77]: https://github.com/tddworks/ClaudeBar/compare/v0.4.76...v0.4.77
 [0.4.76]: https://github.com/tddworks/ClaudeBar/compare/v0.4.75...v0.4.76
 [0.4.75]: https://github.com/tddworks/ClaudeBar/compare/v0.4.73...v0.4.75
