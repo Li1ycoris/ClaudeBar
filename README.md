@@ -282,7 +282,7 @@ The workflow will automatically build, sign, notarize, and publish to GitHub Rel
 
 ## Contributors
 
-Thanks goes to these wonderful people:
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -352,6 +352,12 @@ Thanks goes to these wonderful people:
 <!-- prettier-ignore-end -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+To credit someone, comment on any issue or pull request:
+
+```
+@all-contributors please add @username for code, doc
+```
 
 ## License
 
