@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The menu bar reset countdown now shows hours with minutes in "H:MM" form
+  (e.g. "3:58") instead of truncating to whole hours ("3h"), which could
+  understate the remaining time by up to 59 minutes compared with the panel's
+  "3h 58m" detail. Day-level ("2d") and minute-level ("45m") labels are
+  unchanged. (#246)
+
 ---
 
 ## [0.4.77] - 2026-08-12
