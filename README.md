@@ -282,46 +282,76 @@ The workflow will automatically build, sign, notarize, and publish to GitHub Rel
 
 ## Contributors
 
-Thanks to everyone who has contributed to ClaudeBar!
+Thanks goes to these wonderful people:
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
 <table>
-  <tr>
-    <td align="center"><a href="https://github.com/hanrw"><img src="https://github.com/hanrw.png?size=80" width="80" alt="hanrw"/><br/><sub><b>hanrw</b></sub></a></td>
-    <td align="center"><a href="https://github.com/ramarivera"><img src="https://github.com/ramarivera.png?size=80" width="80" alt="ramarivera"/><br/><sub><b>ramarivera</b></sub></a></td>
-    <td align="center"><a href="https://github.com/zenibako"><img src="https://github.com/zenibako.png?size=80" width="80" alt="zenibako"/><br/><sub><b>zenibako</b></sub></a></td>
-    <td align="center"><a href="https://github.com/AlexanderWillner"><img src="https://github.com/AlexanderWillner.png?size=80" width="80" alt="AlexanderWillner"/><br/><sub><b>AlexanderWillner</b></sub></a></td>
-    <td align="center"><a href="https://github.com/avishj"><img src="https://github.com/avishj.png?size=80" width="80" alt="avishj"/><br/><sub><b>avishj</b></sub></a></td>
-    <td align="center"><a href="https://github.com/BryanQQYue"><img src="https://github.com/BryanQQYue.png?size=80" width="80" alt="BryanQQYue"/><br/><sub><b>BryanQQYue</b></sub></a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/frankhommers"><img src="https://github.com/frankhommers.png?size=80" width="80" alt="frankhommers"/><br/><sub><b>frankhommers</b></sub></a></td>
-    <td align="center"><a href="https://github.com/hagiwaratakayuki"><img src="https://github.com/hagiwaratakayuki.png?size=80" width="80" alt="hagiwaratakayuki"/><br/><sub><b>hagiwaratakayuki</b></sub></a></td>
-    <td align="center"><a href="https://github.com/tomstetson"><img src="https://github.com/tomstetson.png?size=80" width="80" alt="tomstetson"/><br/><sub><b>tomstetson</b></sub></a></td>
-    <td align="center"><a href="https://github.com/logancox"><img src="https://github.com/logancox.png?size=80" width="80" alt="logancox"/><br/><sub><b>logancox</b></sub></a></td>
-    <td align="center"><a href="https://github.com/hansonkim"><img src="https://github.com/hansonkim.png?size=80" width="80" alt="hansonkim"/><br/><sub><b>hansonkim</b></sub></a></td>
-    <td align="center"><a href="https://github.com/farmdawgnation"><img src="https://github.com/farmdawgnation.png?size=80" width="80" alt="farmdawgnation"/><br/><sub><b>farmdawgnation</b></sub></a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/sailesh"><img src="https://github.com/sailesh.png?size=80" width="80" alt="sailesh"/><br/><sub><b>sailesh</b></sub></a></td>
-    <td align="center"><a href="https://github.com/billyjack2"><img src="https://github.com/billyjack2.png?size=80" width="80" alt="billyjack2"/><br/><sub><b>billyjack2</b></sub></a></td>
-    <td align="center"><a href="https://github.com/nero-sensei"><img src="https://github.com/nero-sensei.png?size=80" width="80" alt="nero-sensei"/><br/><sub><b>nero-sensei</b></sub></a></td>
-    <td align="center"><a href="https://github.com/marcusquinn"><img src="https://github.com/marcusquinn.png?size=80" width="80" alt="marcusquinn"/><br/><sub><b>marcusquinn</b></sub></a></td>
-    <td align="center"><a href="https://github.com/jeffscottmtl"><img src="https://github.com/jeffscottmtl.png?size=80" width="80" alt="jeffscottmtl"/><br/><sub><b>jeffscottmtl</b></sub></a></td>
-    <td align="center"><a href="https://github.com/LunarECL"><img src="https://github.com/LunarECL.png?size=80" width="80" alt="LunarECL"/><br/><sub><b>LunarECL</b></sub></a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/jeffWelling"><img src="https://github.com/jeffWelling.png?size=80" width="80" alt="jeffWelling"/><br/><sub><b>jeffWelling</b></sub></a></td>
-    <td align="center"><a href="https://github.com/Zada5"><img src="https://github.com/Zada5.png?size=80" width="80" alt="Zada5"/><br/><sub><b>Zada5</b></sub></a></td>
-    <td align="center"><a href="https://github.com/fredericoricco-debug"><img src="https://github.com/fredericoricco-debug.png?size=80" width="80" alt="fredericoricco-debug"/><br/><sub><b>fredericoricco-debug</b></sub></a></td>
-    <td align="center"><a href="https://github.com/benjaminbelaga"><img src="https://github.com/benjaminbelaga.png?size=80" width="80" alt="benjaminbelaga"/><br/><sub><b>benjaminbelaga</b></sub></a></td>
-    <td align="center"><a href="https://github.com/y5mei"><img src="https://github.com/y5mei.png?size=80" width="80" alt="y5mei"/><br/><sub><b>y5mei</b></sub></a></td>
-    <td align="center"><a href="https://github.com/josecancino"><img src="https://github.com/josecancino.png?size=80" width="80" alt="josecancino"/><br/><sub><b>josecancino</b></sub></a></td>
-  </tr>
-  <tr>
-    <td align="center"><a href="https://github.com/isnakolah"><img src="https://github.com/isnakolah.png?size=80" width="80" alt="isnakolah"/><br/><sub><b>isnakolah</b></sub></a></td>
-    <td align="center"><a href="https://github.com/Mitsi-ag"><img src="https://github.com/Mitsi-ag.png?size=80" width="80" alt="Mitsi-ag"/><br/><sub><b>Mitsi-ag</b></sub></a></td>
-  </tr>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://tddworks.com/"><img src="https://avatars.githubusercontent.com/u/1201118?v=4?s=80" width="80px;" alt="itshan"/><br /><sub><b>itshan</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=hanrw" title="Code">💻</a> <a href="https://github.com/tddworks/claudebar/commits?author=hanrw" title="Documentation">📖</a> <a href="#maintenance-hanrw" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/avishj"><img src="https://avatars.githubusercontent.com/u/58023328?v=4?s=80" width="80px;" alt="Avish Jha"/><br /><sub><b>Avish Jha</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=avishj" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ramarivera"><img src="https://avatars.githubusercontent.com/u/7547875?v=4?s=80" width="80px;" alt="Ramiro"/><br /><sub><b>Ramiro</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=ramarivera" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/LunarECL"><img src="https://avatars.githubusercontent.com/u/38317983?v=4?s=80" width="80px;" alt="LunarECL"/><br /><sub><b>LunarECL</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=LunarECL" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/zenibako"><img src="https://avatars.githubusercontent.com/u/18584424?v=4?s=80" width="80px;" alt="Chandler Anderson"/><br /><sub><b>Chandler Anderson</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=zenibako" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://frmr.me"><img src="https://avatars.githubusercontent.com/u/620189?v=4?s=80" width="80px;" alt="Matt Farmer"/><br /><sub><b>Matt Farmer</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=farmdawgnation" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://willner.ws"><img src="https://avatars.githubusercontent.com/u/307605?v=4?s=80" width="80px;" alt="Alex"/><br /><sub><b>Alex</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=AlexanderWillner" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/sailesh"><img src="https://avatars.githubusercontent.com/u/493129?v=4?s=80" width="80px;" alt="sailesh"/><br /><sub><b>sailesh</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=sailesh" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/billyjack2"><img src="https://avatars.githubusercontent.com/u/28798344?v=4?s=80" width="80px;" alt="Billy Smith"/><br /><sub><b>Billy Smith</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=billyjack2" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/nero-sensei"><img src="https://avatars.githubusercontent.com/u/77715088?v=4?s=80" width="80px;" alt="nero"/><br /><sub><b>nero</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=nero-sensei" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/BryanQQYue"><img src="https://avatars.githubusercontent.com/u/169884865?v=4?s=80" width="80px;" alt="BryanYue"/><br /><sub><b>BryanYue</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=BryanQQYue" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://blog.d0zingcat.dev/"><img src="https://avatars.githubusercontent.com/u/8235790?v=4?s=80" width="80px;" alt="Tony Tang"/><br /><sub><b>Tony Tang</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=d0zingcat" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://initialize.nl/"><img src="https://avatars.githubusercontent.com/u/7355878?v=4?s=80" width="80px;" alt="Frank Hommers"/><br /><sub><b>Frank Hommers</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=frankhommers" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.marcusquinn.com"><img src="https://avatars.githubusercontent.com/u/6428977?v=4?s=80" width="80px;" alt="Marcus Quinn"/><br /><sub><b>Marcus Quinn</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=marcusquinn" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/hagiwaratakayuki"><img src="https://avatars.githubusercontent.com/u/141513?v=4?s=80" width="80px;" alt="hagiwara takayuki"/><br /><sub><b>hagiwara takayuki</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=hagiwaratakayuki" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jeffscottmtl"><img src="https://avatars.githubusercontent.com/u/33327731?v=4?s=80" width="80px;" alt="jeffscottmtl"/><br /><sub><b>jeffscottmtl</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=jeffscottmtl" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/tomstetson"><img src="https://avatars.githubusercontent.com/u/11658911?v=4?s=80" width="80px;" alt="Tom"/><br /><sub><b>Tom</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=tomstetson" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jeffWelling"><img src="https://avatars.githubusercontent.com/u/105077?v=4?s=80" width="80px;" alt="Jeff Welling"/><br /><sub><b>Jeff Welling</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=jeffWelling" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Zada5"><img src="https://avatars.githubusercontent.com/u/91982194?v=4?s=80" width="80px;" alt="Zada5"/><br /><sub><b>Zada5</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=Zada5" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/fredericoricco-debug"><img src="https://avatars.githubusercontent.com/u/75469834?v=4?s=80" width="80px;" alt="fredericoricco-debug"/><br /><sub><b>fredericoricco-debug</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=fredericoricco-debug" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://lystic.dev"><img src="https://avatars.githubusercontent.com/u/15372623?v=4?s=80" width="80px;" alt="Kegan Hollern"/><br /><sub><b>Kegan Hollern</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=KeganHollern" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jsg333"><img src="https://avatars.githubusercontent.com/u/954990?v=4?s=80" width="80px;" alt="Jeff Green"/><br /><sub><b>Jeff Green</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=jsg333" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/benjaminbelaga"><img src="https://avatars.githubusercontent.com/u/33546317?v=4?s=80" width="80px;" alt="Benjamin Belaga"/><br /><sub><b>Benjamin Belaga</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=benjaminbelaga" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/romanvalent"><img src="https://avatars.githubusercontent.com/u/14106124?v=4?s=80" width="80px;" alt="romanvalent"/><br /><sub><b>romanvalent</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=romanvalent" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="http://aakshintala.com"><img src="https://avatars.githubusercontent.com/u/748697?v=4?s=80" width="80px;" alt="Amogh Akshintala"/><br /><sub><b>Amogh Akshintala</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=aakshintala" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.portfolio.isnakolah.me"><img src="https://avatars.githubusercontent.com/u/47239024?v=4?s=80" width="80px;" alt="Daniel Nakolah"/><br /><sub><b>Daniel Nakolah</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=isnakolah" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Mitsi-ag"><img src="https://avatars.githubusercontent.com/u/141203898?v=4?s=80" width="80px;" alt="Mitsi-ag"/><br /><sub><b>Mitsi-ag</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=Mitsi-ag" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.josecancinolinares.com/en/portfolio"><img src="https://avatars.githubusercontent.com/u/65030646?v=4?s=80" width="80px;" alt="José Cancino Linares"/><br /><sub><b>José Cancino Linares</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=josecancino" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/logancox"><img src="https://avatars.githubusercontent.com/u/28828028?v=4?s=80" width="80px;" alt="logancox"/><br /><sub><b>logancox</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=logancox" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://ywmei.ca/index.php"><img src="https://avatars.githubusercontent.com/u/5897309?v=4?s=80" width="80px;" alt="y5mei"/><br /><sub><b>y5mei</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=y5mei" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://hansonkim.github.io"><img src="https://avatars.githubusercontent.com/u/1308073?v=4?s=80" width="80px;" alt="Hanson Kim"/><br /><sub><b>Hanson Kim</b></sub></a><br /><a href="https://github.com/tddworks/claudebar/commits?author=hansonkim" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td align="center" size="13px" colspan="6">
+        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
+          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
+        </img>
+      </td>
+    </tr>
+  </tfoot>
 </table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
 ## License
 
