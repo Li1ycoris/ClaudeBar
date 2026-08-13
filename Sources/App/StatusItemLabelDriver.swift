@@ -30,8 +30,14 @@ final class StatusItemLabelDriver {
     private var statusItem: NSStatusItem?
     private var labelSync: ObservationRenderSync<LabelContent>?
     private var loopSync: ObservationRenderSync<RefreshLoopKey>?
+    private var blinkSync: ObservationRenderSync<Bool>?
     private var streamConsumer: Task<Void, Never>?
     private var wakeObserver: NSObjectProtocol?
+
+    /// Drives the countdown: every tick re-reads the label (picking up the
+    /// current wall clock) and flips `blinkPhase`. See `startBlinkTimer`.
+    private var blinkTimer: Timer?
+    private var blinkPhase = true
 
     /// The image currently owned by this driver, and the content it encodes.
     /// Used both to skip redundant redraws (repainting an intact image can
@@ -66,6 +72,11 @@ final class StatusItemLabelDriver {
         /// content (not read at draw time) so changing the size in Settings
         /// invalidates the observation sync and repaints the label.
         var stackedSize: MenuBarStackedSize = .default
+        /// Blink phase for an H:MM countdown's separator colon. Only alternates
+        /// while the label actually holds a countdown colon, so a "2d" or "45m"
+        /// label keeps comparing equal across ticks and never repaints for the
+        /// blink alone (see `render`'s early-out).
+        var colonVisible: Bool = true
     }
 
     /// Attaches to the `NSStatusItem` exposed by MenuBarExtraAccess and starts
@@ -84,6 +95,7 @@ final class StatusItemLabelDriver {
         )
         labelSync = sync
         sync.start()
+        startBlinkLifecycle()
 
         // SwiftUI wipes `button.image` whenever the scene re-evaluates (every
         // dropdown open/close flips the `isPresented` binding). Restore it
@@ -130,13 +142,17 @@ final class StatusItemLabelDriver {
             burnRateThreshold: settings.burnRateThreshold
         )
 
+        let label = freshLabel ?? lastKnownLabel(whenFreshIsMissing: freshLabel)
+        let hasCountdownColon = label.map { !CountdownColon.ranges(in: $0.text).isEmpty } ?? false
+
         return LabelContent(
-            label: freshLabel ?? lastKnownLabel(whenFreshIsMissing: freshLabel),
+            label: label,
             fallbackStatus: effectiveSelectedProviderStatus,
             sessionPhase: sessionMonitor.activeSession?.phase,
             themeModeId: settings.themeMode,
             stacked: settings.menuBarStackedEnabled,
-            stackedSize: settings.menuBarStackedSize
+            stackedSize: settings.menuBarStackedSize,
+            colonVisible: hasCountdownColon ? blinkPhase : true
         )
     }
 
@@ -211,12 +227,14 @@ final class StatusItemLabelDriver {
                 parts.append(StatusBarStackedImageRenderer.image(
                     top: (label.segments[0].text, theme.statusColor(for: label.segments[0].status)),
                     bottom: (label.segments[1].text, theme.statusColor(for: label.segments[1].status)),
-                    size: content.stackedSize
+                    size: content.stackedSize,
+                    colonVisible: content.colonVisible
                 ))
             } else {
                 parts.append(StatusBarPercentageImageRenderer.image(
                     text: label.text,
-                    color: theme.statusColor(for: label.status)
+                    color: theme.statusColor(for: label.status),
+                    colonVisible: content.colonVisible
                 ))
             }
         } else {
@@ -274,6 +292,60 @@ final class StatusItemLabelDriver {
         }
         composed.isTemplate = false
         return composed
+    }
+
+    // MARK: - Countdown Tick
+
+    /// Half a second on, half a second off — the cadence a digital clock blinks
+    /// its separator at. Also the rate the label re-reads the wall clock, so a
+    /// countdown advances within half a second of the true minute boundary.
+    private static let blinkInterval: TimeInterval = 0.5
+
+    /// Starts watching whether a duration is shown at all, running the
+    /// countdown tick only while one is. Sibling of `startMonitoringLifecycle`.
+    ///
+    /// Before this existed the label had no clock: the countdown text is
+    /// computed fresh on every draw, but nothing *caused* a draw on a time
+    /// basis. It advanced only as a side effect of something else changing — a
+    /// probe result, a Claude Code hook event, opening the dropdown — so on an
+    /// idle machine with background refresh off it could sit visibly stale.
+    private func startBlinkLifecycle() {
+        guard blinkSync == nil else { return }
+        let sync = ObservationRenderSync<Bool>(
+            read: { [self] in settings.menuBarDurationEnabled },
+            render: { [self] showsDuration in
+                showsDuration ? startBlinkTimer() : stopBlinkTimer()
+            }
+        )
+        blinkSync = sync
+        sync.start()
+    }
+
+    private func startBlinkTimer() {
+        guard blinkTimer == nil else { return }
+        let timer = Timer(timeInterval: Self.blinkInterval, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.blinkPhase.toggle()
+                // refreshNow, not renderNow: the tick must not arm a new
+                // observation registration twice a second, and must keep the
+                // equality check so a colon-less label ("2d") never repaints.
+                self.labelSync?.refreshNow()
+            }
+        }
+        // .common, not the default mode: a runloop in tracking mode (any menu
+        // open) would otherwise stall the tick and freeze the colon mid-pulse.
+        RunLoop.main.add(timer, forMode: .common)
+        blinkTimer = timer
+    }
+
+    private func stopBlinkTimer() {
+        guard blinkTimer != nil else { return }
+        blinkTimer?.invalidate()
+        blinkTimer = nil
+        // Never leave the colon parked in its dimmed phase.
+        blinkPhase = true
+        labelSync?.refreshNow()
     }
 
     // MARK: - Background Refresh Lifecycle
@@ -345,17 +417,48 @@ final class StatusItemLabelDriver {
     }
 }
 
+/// Pulses the separator colon of an H:MM countdown by fading it, shared by both
+/// status-bar renderers.
+///
+/// Fading rather than hiding is deliberate. The label is drawn in
+/// `monospacedDigitSystemFont`, where only the *digits* are fixed-width —
+/// punctuation stays proportional. Substituting a space for the colon would
+/// therefore change the label's width twice a second and shove every menu bar
+/// item to its left. The glyph always draws at full size; only its alpha
+/// changes, so the metrics are identical in both phases.
+enum CountdownColonStyle {
+    /// Alpha of the colon in its dimmed phase. Low enough to read as a pulse,
+    /// high enough that the time never looks like it lost a character.
+    private static let dimmedAlpha: CGFloat = 0.25
+
+    /// Dims the countdown colons in `attributed` when the blink phase is off.
+    /// A no-op in the visible phase, and for any text with no countdown colon.
+    @MainActor
+    static func apply(colonVisible: Bool, to attributed: NSMutableAttributedString, baseColor: Color) {
+        guard !colonVisible else { return }
+        let text = attributed.string
+        let ranges = CountdownColon.ranges(in: text)
+        guard !ranges.isEmpty else { return }
+
+        let dimmed = NSColor(baseColor).withAlphaComponent(dimmedAlpha)
+        for range in ranges {
+            attributed.addAttribute(.foregroundColor, value: dimmed, range: NSRange(range, in: text))
+        }
+    }
+}
+
 /// Renders status text as an original-color image because macOS can ignore
 /// `Text.foregroundStyle` inside a menu bar item.
 enum StatusBarPercentageImageRenderer {
     @MainActor
-    static func image(text: String, color: Color) -> NSImage {
+    static func image(text: String, color: Color, colonVisible: Bool = true) -> NSImage {
         let font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .semibold)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: font,
             .foregroundColor: NSColor(color),
         ]
-        let attributedText = NSAttributedString(string: text, attributes: attributes)
+        let attributedText = NSMutableAttributedString(string: text, attributes: attributes)
+        CountdownColonStyle.apply(colonVisible: colonVisible, to: attributedText, baseColor: color)
         let textSize = attributedText.size()
         let imageSize = NSSize(width: ceil(textSize.width), height: ceil(textSize.height))
         let image = NSImage(size: imageSize, flipped: false) { _ in
@@ -402,14 +505,20 @@ enum StatusBarStackedImageRenderer {
     static func image(
         top: (text: String, color: Color),
         bottom: (text: String, color: Color),
-        size: MenuBarStackedSize = .default
+        size: MenuBarStackedSize = .default,
+        colonVisible: Bool = true
     ) -> NSImage {
         let font = NSFont.monospacedDigitSystemFont(ofSize: size.stackedLinePointSize, weight: .semibold)
+        // Each line carries its own countdown (or none), so each is styled
+        // independently — but both share the phase, so the two colons pulse
+        // together instead of drifting against each other.
         func attributedLine(_ line: (text: String, color: Color)) -> NSAttributedString {
-            NSAttributedString(string: line.text, attributes: [
+            let attributed = NSMutableAttributedString(string: line.text, attributes: [
                 .font: font,
                 .foregroundColor: NSColor(line.color),
             ])
+            CountdownColonStyle.apply(colonVisible: colonVisible, to: attributed, baseColor: line.color)
+            return attributed
         }
         let topLine = attributedLine(top)
         let bottomLine = attributedLine(bottom)
