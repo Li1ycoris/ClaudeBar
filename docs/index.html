@@ -40,6 +40,11 @@
             --crit: #c72840;
             --gone: #8b8f98;
 
+            /* Provider marks are lightened by this much on dark surfaces so
+               near-black brand colours stay legible. */
+            --mark-tint: #ffffff;
+            --mark-tint-amt: 0%;
+
             --shadow-1: 0 1px 2px rgba(16, 18, 24, 0.05), 0 2px 6px rgba(16, 18, 24, 0.045);
             --shadow-2: 0 1px 3px rgba(16, 18, 24, 0.05), 0 10px 28px rgba(16, 18, 24, 0.075);
             --shadow-3: 0 3px 10px rgba(16, 18, 24, 0.07), 0 32px 72px rgba(16, 18, 24, 0.17);
@@ -73,6 +78,7 @@
                 --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
                 --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 12px 30px rgba(0, 0, 0, 0.4);
                 --shadow-3: 0 4px 14px rgba(0, 0, 0, 0.5), 0 36px 80px rgba(0, 0, 0, 0.6);
+                --mark-tint-amt: 32%;
                 --grain: 0.055;
                 --bloom: 0.3;
             }
@@ -99,6 +105,7 @@
             --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
             --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 12px 30px rgba(0, 0, 0, 0.4);
             --shadow-3: 0 4px 14px rgba(0, 0, 0, 0.5), 0 36px 80px rgba(0, 0, 0, 0.6);
+            --mark-tint-amt: 32%;
             --grain: 0.055;
             --bloom: 0.3;
         }
@@ -132,6 +139,10 @@
         }
 
         a { color: inherit; text-decoration: none; }
+
+        /* width/height attributes are there to reserve layout space; without this
+           the height attribute wins as a presentational hint and stretches the image. */
+        img { display: block; max-width: 100%; height: auto; }
 
         code, kbd, .mono { font-family: var(--mono); font-feature-settings: "zero" 1; }
 
@@ -444,6 +455,7 @@
 
         .stat b {
             display: block;
+            color: var(--c, var(--ink));
             font-family: var(--mono);
             font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 500;
@@ -504,6 +516,9 @@
             box-shadow: 0 0 0 1px var(--hair);
         }
 
+        /* --mc is --m, lightened just enough for whichever surface it lands on. */
+        .pv { --mc: color-mix(in srgb, var(--m), var(--mark-tint) var(--mark-tint-amt)); }
+
         .pv {
             display: flex;
             align-items: center;
@@ -526,17 +541,15 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.01em;
-            color: var(--ink-3);
-            background: var(--paper-2);
-            border: 1px solid var(--hair-2);
-            transition: color 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
+            color: var(--mc);
+            background: color-mix(in srgb, var(--m) 11%, transparent);
+            border: 1px solid color-mix(in srgb, var(--m) 26%, transparent);
+            transition: background-color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
         }
 
-        /* Brand colour arrives on hover only — the page's palette belongs to the data. */
         .pv:hover .pv-mark {
-            color: var(--m);
-            background: color-mix(in srgb, var(--m) 13%, transparent);
-            border-color: color-mix(in srgb, var(--m) 32%, transparent);
+            background: color-mix(in srgb, var(--m) 19%, transparent);
+            border-color: color-mix(in srgb, var(--m) 44%, transparent);
         }
 
         .pv-name { display: block; font-size: 14.5px; font-weight: 600; letter-spacing: -0.012em; line-height: 1.3; }
@@ -658,10 +671,15 @@
             border-radius: 11px;
             display: grid;
             place-items: center;
-            background: var(--azure-soft);
-            color: var(--azure);
+            color: color-mix(in srgb, var(--f), var(--mark-tint) var(--mark-tint-amt));
+            background: color-mix(in srgb, var(--f) 13%, transparent);
+            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--f) 24%, transparent);
             margin-bottom: 20px;
+            transition: background-color 0.25s ease;
         }
+
+        .feat { --f: var(--azure); }
+        .feat:hover .feat-ico { background: color-mix(in srgb, var(--f) 20%, transparent); }
 
         .feat-ico svg { width: 19px; height: 19px; }
 
@@ -934,10 +952,10 @@
             </div>
 
             <div class="stats rise" style="--d:0.48s">
-                <div class="stat"><b>19</b><span>providers tracked</span></div>
-                <div class="stat"><b>5</b><span>themes, plus your own</span></div>
-                <div class="stat"><b>0</b><span>accounts to create</span></div>
-                <div class="stat"><b>MIT</b><span>open source, forever</span></div>
+                <div class="stat" style="--c:var(--azure)"><b>19</b><span>providers tracked</span></div>
+                <div class="stat" style="--c:var(--ok)"><b>5</b><span>themes, plus your own</span></div>
+                <div class="stat" style="--c:var(--warn)"><b>0</b><span>accounts to create</span></div>
+                <div class="stat" style="--c:var(--crit)"><b>MIT</b><span>open source, forever</span></div>
             </div>
         </div>
     </header>
@@ -959,21 +977,21 @@
                 <div class="pv" style="--m:#10a37f"><span class="pv-mark">Cx</span><div><span class="pv-name">Codex</span><span class="pv-src">codex</span></div></div>
                 <div class="pv" style="--m:#4285f4"><span class="pv-mark">Ge</span><div><span class="pv-name">Gemini</span><span class="pv-src">gemini</span></div></div>
                 <div class="pv" style="--m:#8957e5"><span class="pv-mark">Co</span><div><span class="pv-name">GitHub Copilot</span><span class="pv-src">GitHub API</span></div></div>
-                <div class="pv" style="--m:#00b8a9"><span class="pv-mark">Ag</span><div><span class="pv-name">Antigravity</span><span class="pv-src">local server</span></div></div>
-                <div class="pv" style="--m:#4f7bf7"><span class="pv-mark">Za</span><div><span class="pv-name">Z.ai</span><span class="pv-src">GLM coding plan</span></div></div>
+                <div class="pv" style="--m:#00a99d"><span class="pv-mark">Ag</span><div><span class="pv-name">Antigravity</span><span class="pv-src">local server</span></div></div>
+                <div class="pv" style="--m:#3f6ff5"><span class="pv-mark">Za</span><div><span class="pv-name">Z.ai</span><span class="pv-src">GLM coding plan</span></div></div>
                 <div class="pv" style="--m:#ff9900"><span class="pv-mark">Br</span><div><span class="pv-name">AWS Bedrock</span><span class="pv-src">AWS profile</span></div></div>
                 <div class="pv" style="--m:#e8590c"><span class="pv-mark">Am</span><div><span class="pv-name">Amp</span><span class="pv-src">amp</span></div></div>
-                <div class="pv" style="--m:#5b6ef5"><span class="pv-mark">Ki</span><div><span class="pv-name">Kimi</span><span class="pv-src">kimi · or API</span></div></div>
-                <div class="pv" style="--m:#7c3aed"><span class="pv-mark">Kr</span><div><span class="pv-name">Kiro</span><span class="pv-src">kiro-cli</span></div></div>
-                <div class="pv" style="--m:#64748b"><span class="pv-mark">Cu</span><div><span class="pv-name">Cursor</span><span class="pv-src">cursor</span></div></div>
+                <div class="pv" style="--m:#5b5bf5"><span class="pv-mark">Ki</span><div><span class="pv-name">Kimi</span><span class="pv-src">kimi · or API</span></div></div>
+                <div class="pv" style="--m:#9333ea"><span class="pv-mark">Kr</span><div><span class="pv-name">Kiro</span><span class="pv-src">kiro-cli</span></div></div>
+                <div class="pv" style="--m:#0f8ba8"><span class="pv-mark">Cu</span><div><span class="pv-name">Cursor</span><span class="pv-src">cursor</span></div></div>
                 <div class="pv" style="--m:#e5484d"><span class="pv-mark">Mm</span><div><span class="pv-name">MiniMax</span><span class="pv-src">API key</span></div></div>
                 <div class="pv" style="--m:#4d6bfe"><span class="pv-mark">Ds</span><div><span class="pv-name">DeepSeek</span><span class="pv-src">API key</span></div></div>
                 <div class="pv" style="--m:#64748b"><span class="pv-mark">Vc</span><div><span class="pv-name">Vercel Gateway</span><span class="pv-src">API token</span></div></div>
                 <div class="pv" style="--m:#ff6a00"><span class="pv-mark">Al</span><div><span class="pv-name">Alibaba</span><span class="pv-src">coding plan</span></div></div>
                 <div class="pv" style="--m:#fa520f"><span class="pv-mark">Ms</span><div><span class="pv-name">Mistral</span><span class="pv-src">local logs</span></div></div>
                 <div class="pv" style="--m:#12a594"><span class="pv-mark">Oc</span><div><span class="pv-name">OpenCode Go</span><span class="pv-src">opencode</span></div></div>
-                <div class="pv" style="--m:#e0a33a"><span class="pv-mark">Op</span><div><span class="pv-name">Oh My Pi</span><span class="pv-src">omp</span></div></div>
-                <div class="pv" style="--m:#64748b"><span class="pv-mark">Gk</span><div><span class="pv-name">Grok</span><span class="pv-src">grok</span></div></div>
+                <div class="pv" style="--m:#d9a01e"><span class="pv-mark">Op</span><div><span class="pv-name">Oh My Pi</span><span class="pv-src">omp</span></div></div>
+                <div class="pv" style="--m:#52525b"><span class="pv-mark">Gk</span><div><span class="pv-name">Grok</span><span class="pv-src">grok</span></div></div>
             </div>
 
             <p class="pv-note rise">
@@ -1028,15 +1046,15 @@
             <div class="head center rise">
                 <p class="kicker">Themes</p>
                 <h2>It should look like it belongs on your Mac.</h2>
-                <p>Light and Dark follow your system appearance. CLI matches your terminal. Christmas turns itself on for the holidays.</p>
+                <p>Light and Dark ship built in. System follows your macOS appearance. CLI matches your terminal. Christmas turns itself on for the holidays.</p>
             </div>
 
             <div style="text-align:center" class="rise">
-                <div class="seg" role="tablist" aria-label="Theme preview">
-                    <button role="tab" aria-selected="true" data-shot="light">Light</button>
-                    <button role="tab" aria-selected="false" data-shot="dark">Dark</button>
-                    <button role="tab" aria-selected="false" data-shot="cli">CLI</button>
-                    <button role="tab" aria-selected="false" data-shot="xmas">Christmas</button>
+                <div class="seg" role="group" aria-label="Preview a theme">
+                    <button type="button" aria-pressed="true" data-shot="light">Light</button>
+                    <button type="button" aria-pressed="false" data-shot="dark">Dark</button>
+                    <button type="button" aria-pressed="false" data-shot="cli">CLI</button>
+                    <button type="button" aria-pressed="false" data-shot="xmas">Christmas</button>
                 </div>
             </div>
 
@@ -1063,32 +1081,32 @@
             </div>
 
             <div class="feat-grid rise">
-                <div class="feat">
+                <div class="feat" style="--f:#1d7fd1">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3.5 16.5a9 9 0 1117 0"/><path d="M12 16.5l4.2-5.4"/><circle cx="12" cy="16.5" r="1.3" fill="currentColor" stroke="none"/></svg></div>
                     <h3>Live quota tracking</h3>
                     <p>Session, weekly and per-model windows, refreshed on an interval you choose — plus cost, tokens and working time where the provider reports them.</p>
                 </div>
-                <div class="feat">
+                <div class="feat" style="--f:#7c4ddb">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.3 2"/></svg></div>
                     <h3>Reset countdowns</h3>
                     <p>Timezone-aware, down to the second, with a colon that ticks on its own clock. You always know how long until the window turns over.</p>
                 </div>
-                <div class="feat">
+                <div class="feat" style="--f:#d1483c">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 10.4a5.6 5.6 0 0111.2 0c0 4 1.6 5.6 1.6 5.6H4.8s1.6-1.6 1.6-5.6z"/><path d="M10.2 19a2 2 0 003.6 0"/></svg></div>
                     <h3>Notifications that matter</h3>
                     <p>A system notification when a provider crosses into warning or critical — and when a window resets. Nothing else pings you.</p>
                 </div>
-                <div class="feat">
+                <div class="feat" style="--f:#0f9160">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 8h10M18 8h2M4 16h4M12 16h8"/><circle cx="16" cy="8" r="2.1"/><circle cx="10" cy="16" r="2.1"/></svg></div>
                     <h3>Only what you use</h3>
                     <p>Toggle any of the nineteen providers off in Settings. The tab strip and the menu bar shrink to match — no dead entries for tools you don't have.</p>
                 </div>
-                <div class="feat">
+                <div class="feat" style="--f:#d98a15">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3.6a8.4 8.4 0 000 16.8c1.4 0 2-.9 2-1.9 0-1.6-1.4-1.7-1.4-3 0-1 .8-1.7 2-1.7h2.2a3.6 3.6 0 003.6-3.6c0-3.7-3.6-6.6-8.4-6.6z"/><circle cx="8.4" cy="10.2" r="1.05" fill="currentColor" stroke="none"/><circle cx="12" cy="7.8" r="1.05" fill="currentColor" stroke="none"/><circle cx="15.6" cy="9.6" r="1.05" fill="currentColor" stroke="none"/></svg></div>
                     <h3>Five themes, or yours</h3>
                     <p>Light, Dark, System, CLI and Christmas ship built in. Import an <code>.itermcolors</code> file and ClaudeBar generates a theme from it.</p>
                 </div>
-                <div class="feat">
+                <div class="feat" style="--f:#0e8f9e">
                     <div class="feat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 10-2.6 5.9"/><path d="M20 6.6V12h-5.4"/></svg></div>
                     <h3>Native and self-updating</h3>
                     <p>SwiftUI throughout, no web view in sight. Sparkle picks up new releases in the background, so the app you have is the current one.</p>
@@ -1319,95 +1337,92 @@
     </footer>
 
     <script>
-    (function () {
+    (() => {
         'use strict';
 
         /* ── Theme toggle: remembers a choice, otherwise follows the system ── */
-        var root = document.documentElement;
+        const root = document.documentElement;
         try {
-            var saved = localStorage.getItem('claudebar-theme');
+            const saved = localStorage.getItem('claudebar-theme');
             if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
-        } catch (e) { /* private browsing */ }
+        } catch (e) { /* private browsing — fall back to the system preference */ }
 
-        document.getElementById('theme-toggle').addEventListener('click', function () {
-            var isDark = root.getAttribute('data-theme') === 'dark' ||
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const isDark = root.getAttribute('data-theme') === 'dark' ||
                 (!root.hasAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
-            var next = isDark ? 'light' : 'dark';
+            const next = isDark ? 'light' : 'dark';
             root.setAttribute('data-theme', next);
             try { localStorage.setItem('claudebar-theme', next); } catch (e) {}
         });
 
         /* ── Menu bar clock, the way macOS writes it ── */
-        var clock = document.getElementById('clock');
-        function tickClock() {
+        const clock = document.getElementById('clock');
+        const tickClock = () => {
             clock.textContent = new Date().toLocaleString(undefined, {
                 weekday: 'short', day: 'numeric', month: 'short',
                 hour: 'numeric', minute: '2-digit'
             });
-        }
+        };
         tickClock();
         setInterval(tickClock, 20000);
 
         /* ── The illustrative countdown in the menu bar extra ── */
-        var secs = document.getElementById('cd-secs');
-        var left = 59;
-        setInterval(function () {
+        const secs = document.getElementById('cd-secs');
+        let left = 59;
+        setInterval(() => {
             left = left === 0 ? 59 : left - 1;
-            secs.textContent = left < 10 ? '0' + left : String(left);
+            secs.textContent = String(left).padStart(2, '0');
         }, 1000);
 
         /* ── Copy buttons ── */
-        document.querySelectorAll('.copy').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                var text = btn.getAttribute('data-copy');
-                var done = function () {
-                    var label = btn.textContent;
-                    btn.textContent = 'Copied';
-                    btn.dataset.copied = '1';
-                    setTimeout(function () { btn.textContent = label; delete btn.dataset.copied; }, 1600);
-                };
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(text).then(done, function () {});
-                } else {
-                    var ta = document.createElement('textarea');
-                    ta.value = text;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    try { document.execCommand('copy'); done(); } catch (e) {}
-                    document.body.removeChild(ta);
+        document.querySelectorAll('.copy').forEach((btn) => {
+            const label = btn.textContent;
+            btn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(btn.dataset.copy);
+                } catch (e) {
+                    return; /* clipboard denied — leave the text selectable instead */
                 }
+                btn.textContent = 'Copied';
+                btn.dataset.copied = '1';
+                setTimeout(() => { btn.textContent = label; delete btn.dataset.copied; }, 1600);
             });
         });
 
         /* ── Theme preview segmented control ── */
-        var seg = document.querySelector('.seg');
-        var shots = document.querySelectorAll('.theme-stage img');
-        seg.addEventListener('click', function (event) {
-            var btn = event.target.closest('button[data-shot]');
+        const seg = document.querySelector('.seg');
+        const shots = document.querySelectorAll('.theme-stage img');
+        seg.addEventListener('click', (event) => {
+            const btn = event.target.closest('button[data-shot]');
             if (!btn) return;
-            seg.querySelectorAll('button').forEach(function (b) {
-                b.setAttribute('aria-selected', String(b === btn));
+            seg.querySelectorAll('button').forEach((b) => {
+                b.setAttribute('aria-pressed', String(b === btn));
             });
-            shots.forEach(function (img) {
+            shots.forEach((img) => {
                 if (img.dataset.shot === btn.dataset.shot) img.dataset.active = '1';
                 else delete img.dataset.active;
             });
         });
 
-        /* ── Reveal on scroll, meters included ── */
-        var risers = document.querySelectorAll('.rise:not(.hero .rise)');
+        /* ── Reveal on scroll, meters included. Hero elements animate on load
+              instead, so they're excluded here. ── */
+        const risers = [...document.querySelectorAll('.rise')]
+            .filter((el) => !el.closest('.hero'));
+
         if (!('IntersectionObserver' in window)) {
-            risers.forEach(function (el) { el.classList.add('in-view'); });
+            risers.forEach((el) => el.classList.add('in-view'));
             return;
         }
-        var io = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
+
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
                 if (!entry.isIntersecting) return;
                 entry.target.classList.add('in-view');
                 io.unobserve(entry.target);
             });
         }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-        risers.forEach(function (el) { io.observe(el); });
+
+        risers.forEach((el) => io.observe(el));
     })();
     </script>
 </body>
