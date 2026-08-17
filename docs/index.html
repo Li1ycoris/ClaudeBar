@@ -453,9 +453,11 @@
         .stat { padding: 26px 4px 26px 26px; border-left: 1px solid var(--hair); }
         .stat:first-child { border-left: 0; padding-left: 0; }
 
+        /* Hues here are decorative. Green/amber/red stay reserved for quota status,
+           so they never appear as ornament. */
         .stat b {
             display: block;
-            color: var(--c, var(--ink));
+            color: color-mix(in srgb, var(--h, var(--ink)), var(--mark-tint) var(--mark-tint-amt));
             font-family: var(--mono);
             font-size: clamp(1.5rem, 3vw, 2rem);
             font-weight: 500;
@@ -952,10 +954,10 @@
             </div>
 
             <div class="stats rise" style="--d:0.48s">
-                <div class="stat" style="--c:var(--azure)"><b>19</b><span>providers tracked</span></div>
-                <div class="stat" style="--c:var(--ok)"><b>5</b><span>themes, plus your own</span></div>
-                <div class="stat" style="--c:var(--warn)"><b>0</b><span>accounts to create</span></div>
-                <div class="stat" style="--c:var(--crit)"><b>MIT</b><span>open source, forever</span></div>
+                <div class="stat" style="--h:#1d7fd1"><b>19</b><span>providers tracked</span></div>
+                <div class="stat" style="--h:#7c4ddb"><b>5</b><span>themes, plus your own</span></div>
+                <div class="stat" style="--h:#0e8f9e"><b>0</b><span>accounts to create</span></div>
+                <div class="stat" style="--h:#c2603f"><b>MIT</b><span>open source, forever</span></div>
             </div>
         </div>
     </header>
