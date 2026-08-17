@@ -18,6 +18,7 @@
     <script>
         /* Runs before first paint: with no stored choice the page just follows
            prefers-color-scheme, the same way the app's System theme does. */
+        document.documentElement.classList.add('js');
         try {
             var m = localStorage.getItem('claudebar-appearance');
             if (m === 'light' || m === 'dark') document.documentElement.setAttribute('data-theme', m);
@@ -842,10 +843,13 @@
         /* ───────────────────────────────────────────────
            Reveal on scroll
            ─────────────────────────────────────────────── */
-        .rise { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .rise.in-view { opacity: 1; transform: none; }
+        /* Reveal is decoration, so it only ever hides content once JS has proven
+           it can bring it back. Without JS every section renders as-is. */
+        .rise { transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .js .rise { opacity: 0; transform: translateY(22px); }
+        .js .rise.in-view { opacity: 1; transform: none; }
 
-        .hero .rise { transition-delay: var(--d, 0s); opacity: 1; transform: none; animation: rise-in 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0s) both; }
+        .js .hero .rise { opacity: 1; transform: none; animation: rise-in 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) var(--d, 0s) both; }
         @keyframes rise-in { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
 
         /* ───────────────────────────────────────────────
@@ -888,7 +892,7 @@
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
             *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; }
-            .rise { opacity: 1; transform: none; }
+            .js .rise, .js .hero .rise { opacity: 1 !important; transform: none !important; animation: none !important; }
             .meter i { width: var(--w); }
         }
     </style>
@@ -1450,7 +1454,7 @@
                 entry.target.classList.add('in-view');
                 io.unobserve(entry.target);
             });
-        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+        }, { threshold: 0.08 });
 
         risers.forEach((el) => io.observe(el));
     })();
