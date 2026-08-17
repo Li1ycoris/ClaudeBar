@@ -15,6 +15,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        /* Runs before first paint: with no stored choice the page just follows
+           prefers-color-scheme, the same way the app's System theme does. */
+        try {
+            var m = localStorage.getItem('claudebar-appearance');
+            if (m === 'light' || m === 'dark') document.documentElement.setAttribute('data-theme', m);
+        } catch (e) {}
+    </script>
     <style>
         /* ───────────────────────────────────────────────
            Tokens — light is the default, dark is a swap.
@@ -252,14 +260,10 @@
         }
 
         .mb-btn:hover { background: var(--azure); color: var(--azure-ink); }
-        .mb-btn svg { width: 15px; height: 15px; }
-        .mb-btn .moon { display: none; }
-        :root[data-theme="dark"] .mb-btn .moon { display: block; }
-        :root[data-theme="dark"] .mb-btn .sun { display: none; }
-        @media (prefers-color-scheme: dark) {
-            :root:not([data-theme="light"]) .mb-btn .moon { display: block; }
-            :root:not([data-theme="light"]) .mb-btn .sun { display: none; }
-        }
+        .mb-btn svg { width: 15px; height: 15px; display: none; }
+        .mb-btn[data-mode="auto"] .ico-auto,
+        .mb-btn[data-mode="light"] .ico-light,
+        .mb-btn[data-mode="dark"] .ico-dark { display: block; }
 
         .mb-clock {
             font-size: 13px;
@@ -911,9 +915,10 @@
                     <span class="cd" aria-hidden="true">4<span class="colon">:</span><span id="cd-secs">59</span></span>
                     <span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Example quota reading</span>
                 </a>
-                <button class="mb-btn" id="theme-toggle" aria-label="Switch between light and dark">
-                    <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
-                    <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20.5 14.6A8.6 8.6 0 019.4 3.5 8.9 8.9 0 1020.5 14.6z"/></svg>
+                <button class="mb-btn" id="theme-toggle" data-mode="auto" type="button">
+                    <svg class="ico-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4a8.6 8.6 0 000 17.2z" fill="currentColor" stroke="none"/></svg>
+                    <svg class="ico-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+                    <svg class="ico-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20.5 14.6A8.6 8.6 0 019.4 3.5 8.9 8.9 0 1020.5 14.6z"/></svg>
                 </button>
                 <span class="mb-clock" id="clock" aria-hidden="true"></span>
                 <a href="#download" class="mb-get">Get</a>
@@ -1353,19 +1358,31 @@
     (() => {
         'use strict';
 
-        /* ── Theme toggle: remembers a choice, otherwise follows the system ── */
+        /* ── Appearance: Auto → Light → Dark, mirroring the app's own System theme.
+              Auto stores nothing and lets prefers-color-scheme decide. ── */
         const root = document.documentElement;
-        try {
-            const saved = localStorage.getItem('claudebar-theme');
-            if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
-        } catch (e) { /* private browsing — fall back to the system preference */ }
+        const toggle = document.getElementById('theme-toggle');
+        const MODES = ['auto', 'light', 'dark'];
+        const LABELS = { auto: 'Auto, following your system', light: 'Light', dark: 'Dark' };
 
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const isDark = root.getAttribute('data-theme') === 'dark' ||
-                (!root.hasAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
-            const next = isDark ? 'light' : 'dark';
-            root.setAttribute('data-theme', next);
-            try { localStorage.setItem('claudebar-theme', next); } catch (e) {}
+        const apply = (mode) => {
+            if (mode === 'auto') root.removeAttribute('data-theme');
+            else root.setAttribute('data-theme', mode);
+            toggle.dataset.mode = mode;
+            toggle.title = 'Appearance: ' + LABELS[mode];
+            toggle.setAttribute('aria-label', 'Appearance: ' + LABELS[mode] + '. Click to change.');
+        };
+
+        let mode = root.getAttribute('data-theme') || 'auto';
+        apply(mode);
+
+        toggle.addEventListener('click', () => {
+            mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+            apply(mode);
+            try {
+                if (mode === 'auto') localStorage.removeItem('claudebar-appearance');
+                else localStorage.setItem('claudebar-appearance', mode);
+            } catch (e) { /* private browsing — the choice just won't persist */ }
         });
 
         /* ── Menu bar clock, the way macOS writes it ── */
