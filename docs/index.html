@@ -544,8 +544,8 @@
             font-weight: 600;
             letter-spacing: 0.01em;
             color: var(--mc);
-            background: color-mix(in srgb, var(--m) 11%, transparent);
-            border: 1px solid color-mix(in srgb, var(--m) 26%, transparent);
+            background: color-mix(in srgb, var(--m) 15%, transparent);
+            border: 1px solid color-mix(in srgb, var(--m) 30%, transparent);
             transition: background-color 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
         }
 
@@ -721,7 +721,18 @@
         }
 
         .sponsor-card:hover { border-color: var(--ink-3); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+
+        /* Swapped by CSS, not by <picture media>, so the in-page theme toggle
+           reaches it too — a media query only ever sees the system preference. */
         .sponsor-logo { width: 190px; flex-shrink: 0; }
+        .sponsor-logo img { width: 100%; }
+        .sponsor-logo .on-dark { display: none; }
+        :root[data-theme="dark"] .sponsor-logo .on-light { display: none; }
+        :root[data-theme="dark"] .sponsor-logo .on-dark { display: block; }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) .sponsor-logo .on-light { display: none; }
+            :root:not([data-theme="light"]) .sponsor-logo .on-dark { display: block; }
+        }
         .sponsor-card p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
         .sponsor-card strong { color: var(--ink); font-weight: 600; }
 
@@ -1128,14 +1139,14 @@
         <div class="wrap">
             <div class="head center rise">
                 <p class="kicker">Sponsor</p>
-                <h2>Paid for by people who don't ask for anything back.</h2>
+                <h2>Kept free by its sponsors.</h2>
             </div>
 
             <a href="https://www.testmuai.com/?utm_source=ClaudeBar&amp;utm_medium=opensourcecollab" target="_blank" rel="noopener" class="sponsor-card rise">
-                <picture>
-                    <source media="(prefers-color-scheme: dark)" srcset="sponsors/testmuai/testmuai-dark.svg">
-                    <img src="sponsors/testmuai/testmuai-light.svg" alt="TestMu AI" class="sponsor-logo">
-                </picture>
+                <span class="sponsor-logo">
+                    <img src="sponsors/testmuai/testmuai-light.svg" alt="TestMu AI" class="on-light">
+                    <img src="sponsors/testmuai/testmuai-dark.svg" alt="" aria-hidden="true" class="on-dark">
+                </span>
                 <p><strong>TestMu AI</strong> (formerly LambdaTest) is the world's first full-stack agentic AI quality engineering platform, trusted by 18,000+ enterprises.</p>
             </a>
 
