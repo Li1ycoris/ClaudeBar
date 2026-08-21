@@ -18,9 +18,9 @@ struct MenuContentView: View {
     #if ENABLE_SPARKLE
     @Environment(\.sparkleUpdater) private var sparkleUpdater
     #endif
+    @Environment(\.openWindow) private var openWindow
     @State private var isHoveringRefresh = false
     @State private var animateIn = false
-    @State private var showSettings = false
     @State private var showSharePass = false
     @State private var settings = AppSettings.shared
     @State private var hasRequestedNotificationPermission = false
@@ -57,54 +57,49 @@ struct MenuContentView: View {
             // Theme overlay (e.g., snowfall for Christmas)
             theme.overlayView
 
-            if showSettings {
-                // Settings View
-                SettingsContentView(showSettings: $showSettings, monitor: monitor)
-            } else {
-                // Main Content
-                VStack(spacing: 0) {
-                    // Header with branding
-                    headerView
-                        .padding(.horizontal, 16)
-                        .padding(.top, 16)
-                        .padding(.bottom, 12)
+            // Main Content
+            VStack(spacing: 0) {
+                // Header with branding
+                headerView
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 12)
 
-                    // Provider Pills (hidden in overview mode)
-                    if !settings.overviewModeEnabled {
-                        providerPills
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 16)
-                    }
-
-                    // Session Indicator (shown when Claude Code is active)
-                    if let session = sessionMonitor.activeSession {
-                        SessionIndicatorView(session: session)
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 8)
-                    }
-
-                    // Main Content Area — hugs its content, but caps at the
-                    // screen height and scrolls beyond it (aggregating
-                    // providers can show a dozen cards; the action bar must
-                    // never be pushed off-screen).
-                    ScrollView(.vertical, showsIndicators: true) {
-                        VStack(spacing: 12) {
-                            metricsContent
-                        }
+                // Provider Pills (hidden in overview mode)
+                if !settings.overviewModeEnabled {
+                    providerPills
                         .padding(.horizontal, 16)
                         .padding(.bottom, 16)
-                    }
-                    .frame(maxHeight: contentMaxHeight)
-                    // Recreate the scroll view when the shown content
-                    // changes, so a newly selected provider starts at the
-                    // top instead of inheriting the previous scroll offset.
-                    .id(settings.overviewModeEnabled ? "overview" : monitor.selectedProviderId)
-
-                    // Bottom Action Bar
-                    actionBar
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 12)
                 }
+
+                // Session Indicator (shown when Claude Code is active)
+                if let session = sessionMonitor.activeSession {
+                    SessionIndicatorView(session: session)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 8)
+                }
+
+                // Main Content Area — hugs its content, but caps at the
+                // screen height and scrolls beyond it (aggregating
+                // providers can show a dozen cards; the action bar must
+                // never be pushed off-screen).
+                ScrollView(.vertical, showsIndicators: true) {
+                    VStack(spacing: 12) {
+                        metricsContent
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
+                }
+                .frame(maxHeight: contentMaxHeight)
+                // Recreate the scroll view when the shown content
+                // changes, so a newly selected provider starts at the
+                // top instead of inheriting the previous scroll offset.
+                .id(settings.overviewModeEnabled ? "overview" : monitor.selectedProviderId)
+
+                // Bottom Action Bar
+                actionBar
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
             }
 
             // Share Pass Overlay
@@ -843,8 +838,10 @@ struct MenuContentView: View {
 
             // Settings Button with update indicator
             Button {
-                // Avoid window resize animation glitches in MenuBarExtra.
-                showSettings = true
+                // Settings live in a standalone window. The app is an
+                // LSUIElement, so activate it to bring the window forward.
+                openWindow(id: "settings")
+                NSApp.activate(ignoringOtherApps: true)
             } label: {
                 ZStack {
                     Circle()

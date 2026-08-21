@@ -284,6 +284,29 @@ struct ClaudeBarApp: App {
             statusItemDriver.attach(statusItem)
         }
         .menuBarExtraStyle(.window)
+
+        // Standalone Settings window (opened from the popover's gear button).
+        // Hidden title bar: the sidebar runs the full window height and the
+        // traffic lights overlay its top — see SettingsWindowView.
+        Window("ClaudeBar Settings", id: "settings") {
+            Group {
+                #if ENABLE_SPARKLE
+                SettingsWindowView(monitor: monitor) { enabled in
+                    if enabled { startHookServer() } else { stopHookServer() }
+                }
+                .appThemeProvider(themeModeId: settings.themeMode)
+                .environment(\.sparkleUpdater, sparkleUpdater)
+                #else
+                SettingsWindowView(monitor: monitor) { enabled in
+                    if enabled { startHookServer() } else { stopHookServer() }
+                }
+                .appThemeProvider(themeModeId: settings.themeMode)
+                #endif
+            }
+        }
+        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 980, height: 660)
+        .windowResizability(.contentMinSize)
     }
 
 }
