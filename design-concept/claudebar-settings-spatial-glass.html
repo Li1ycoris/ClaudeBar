@@ -70,26 +70,31 @@
     position: relative; z-index: 2;
   }
 
-  /* Titlebar */
-  .titlebar {
-    height: 52px; flex-shrink: 0;
-    display: flex; align-items: center; gap: 8px;
-    padding: 0 18px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(255,255,255,0.02);
-    -webkit-user-select: none; user-select: none;
-  }
-  .traffic { display: flex; gap: 8px; margin-right: 14px; }
+  /* Seamless chrome — no titlebar strip, no divider. The sidebar runs the full
+     window height and hosts the traffic lights; content flows to the top edge
+     with the search field riding level with them (Murmur RootView pattern). */
+  .traffic { display: flex; gap: 8px; }
   .traffic span { width: 12px; height: 12px; border-radius: 50%; display: block; }
   .t-close { background: #ff5f57; } .t-min { background: #febc2e; } .t-zoom { background: #28c840; }
-  .titlebar-title { font-size: 13px; font-weight: 600; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
-  .titlebar-title .logo {
+
+  .sidebar-chrome {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 12px 14px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .sidebar-title { font-size: 13px; font-weight: 600; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+  .sidebar-title .logo {
     width: 20px; height: 20px; border-radius: 6px; background: var(--accent-grad);
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 800; color: white;
   }
+
+  .content-top {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 12px 18px 0;
+    -webkit-user-select: none; user-select: none;
+  }
   .titlebar-search {
-    margin-left: auto;
     display: flex; align-items: center; gap: 7px;
     background: rgba(255,255,255,0.05); border: 1px solid var(--border);
     border-radius: 8px; padding: 6px 12px; width: 220px;
@@ -103,12 +108,12 @@
   /* ============ SIDEBAR ============ */
   .sidebar {
     width: 224px; flex-shrink: 0;
-    border-right: 1px solid var(--border);
-    padding: 14px 10px;
+    padding: 0 10px 14px;
     display: flex; flex-direction: column; gap: 2px;
     background: rgba(0,0,0,0.18);
     overflow-y: auto;
   }
+  .content-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
   .side-label {
     font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 1.6px;
     text-transform: uppercase; color: var(--text-3);
@@ -147,7 +152,7 @@
   .version-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
 
   /* ============ CONTENT ============ */
-  .content { flex: 1; overflow-y: auto; padding: 26px 30px 40px; scroll-behavior: smooth; }
+  .content { flex: 1; overflow-y: auto; padding: 16px 30px 40px; scroll-behavior: smooth; }
   .content::-webkit-scrollbar { width: 8px; }
   .content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
   .content::-webkit-scrollbar-track { background: transparent; }
@@ -326,15 +331,13 @@
 <div class="concept-badge">Concept · Spatial Glass</div>
 
 <div class="window">
-  <div class="titlebar">
-    <div class="traffic"><span class="t-close"></span><span class="t-min"></span><span class="t-zoom"></span></div>
-    <div class="titlebar-title"><span class="logo">C</span> ClaudeBar Settings</div>
-    <div class="titlebar-search">⌕ <input placeholder="Search settings…" oninput="toast('Search filters sections as you type')"></div>
-  </div>
-
   <div class="body-row">
-    <!-- SIDEBAR -->
+    <!-- SIDEBAR (full height, hosts window chrome) -->
     <nav class="sidebar">
+      <div class="sidebar-chrome">
+        <div class="traffic"><span class="t-close"></span><span class="t-min"></span><span class="t-zoom"></span></div>
+      </div>
+      <div class="sidebar-title" style="padding: 0 12px 10px;"><span class="logo">C</span> ClaudeBar</div>
       <div class="side-label">App</div>
       <div class="nav-item active" data-pane="general" onclick="go('general', this)"><span class="nav-icon">⚙︎</span><span class="nav-text">General</span></div>
       <div class="nav-item" data-pane="appearance" onclick="go('appearance', this)"><span class="nav-icon">◐</span><span class="nav-text">Appearance</span></div>
@@ -354,7 +357,11 @@
     </nav>
 
     <!-- CONTENT -->
-    <main class="content" id="content">
+    <div class="content-col">
+      <div class="content-top">
+        <div class="titlebar-search">⌕ <input placeholder="Search settings…" oninput="toast('Search filters sections as you type')"></div>
+      </div>
+      <main class="content" id="content">
 
       <!-- GENERAL -->
       <section class="pane active" id="pane-general">
@@ -682,6 +689,7 @@
       </section>
 
     </main>
+    </div>
   </div>
 </div>
 
