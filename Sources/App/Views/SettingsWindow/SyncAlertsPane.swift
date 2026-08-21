@@ -24,16 +24,14 @@ struct SyncAlertsPane: View {
 
                 SettingsRowDivider()
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 8) {
                     SettingsFieldLabel(text: "REFRESH INTERVAL")
 
-                    Picker("", selection: $settings.refreshInterval) {
-                        ForEach(RefreshInterval.allCases, id: \.self) { interval in
-                            Text(interval.label).tag(interval)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .labelsHidden()
+                    SettingsSegmentedControl(
+                        options: RefreshInterval.allCases,
+                        label: { $0.label },
+                        selection: $settings.refreshInterval
+                    )
                 }
             }
         }

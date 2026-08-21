@@ -129,3 +129,68 @@ struct SettingsFieldLabel: View {
             .tracking(0.5)
     }
 }
+
+/// Themed segmented control matching the design's `.segment` language:
+/// an inset track with pill buttons, the selected one lifted with a glass
+/// fill. Replaces stock AppKit pickers, which ignore the app theme.
+struct SettingsSegmentedControl<Option: Hashable>: View {
+    let options: [Option]
+    let label: (Option) -> String
+    @Binding var selection: Option
+
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(options, id: \.self) { option in
+                SegmentButton(
+                    title: label(option),
+                    isSelected: selection == option
+                ) {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        selection = option
+                    }
+                }
+            }
+        }
+        .padding(3)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.black.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(theme.glassBorder, lineWidth: 1)
+                )
+        )
+    }
+}
+
+private struct SegmentButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    @Environment(\.appTheme) private var theme
+    @State private var isHovering = false
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 11, weight: isSelected ? .semibold : .medium, design: theme.fontDesign))
+                .foregroundStyle(isSelected ? theme.textPrimary : theme.textSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(isSelected ? AnyShapeStyle(theme.glassBackground) : (isHovering ? AnyShapeStyle(theme.hoverOverlay) : AnyShapeStyle(Color.clear)))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 7)
+                                .stroke(isSelected ? theme.glassHighlight.opacity(0.5) : Color.clear, lineWidth: 1)
+                        )
+                )
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovering = $0 }
+    }
+}

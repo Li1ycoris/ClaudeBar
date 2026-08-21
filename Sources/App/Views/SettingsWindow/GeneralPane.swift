@@ -61,15 +61,18 @@ struct GeneralPane: View {
                         title: "Threshold",
                         subtitle: "How far above the sustainable pace triggers a warning."
                     ) {
-                        Picker("", selection: $settings.burnRateThreshold) {
-                            Text("1.2x (Sensitive)").tag(1.2)
-                            Text("1.5x (Default)").tag(1.5)
-                            Text("2.0x (Relaxed)").tag(2.0)
-                            Text("3.0x (Very relaxed)").tag(3.0)
-                        }
-                        .pickerStyle(.menu)
-                        .tint(theme.accentPrimary)
-                        .fixedSize()
+                        SettingsSegmentedControl(
+                            options: [1.2, 1.5, 2.0, 3.0],
+                            label: { threshold in
+                                switch threshold {
+                                case 1.2: "1.2x"
+                                case 1.5: "1.5x"
+                                case 2.0: "2.0x"
+                                default: "3.0x"
+                                }
+                            },
+                            selection: $settings.burnRateThreshold
+                        )
                     }
                 }
             }

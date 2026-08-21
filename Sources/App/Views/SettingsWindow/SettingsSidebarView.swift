@@ -7,8 +7,34 @@ import Domain
 struct SettingsSidebarView: View {
     let monitor: QuotaMonitor
     @Binding var selection: SettingsSection
+    var filter: String = ""
 
     @Environment(\.appTheme) private var theme
+    #if ENABLE_SPARKLE
+    @Environment(\.sparkleUpdater) private var sparkleUpdater
+    #endif
+
+    private var visibleSections: Set<SettingsSection> {
+        Set(SettingsSection.matching(filter: filter))
+    }
+
+    private var updateStatusText: String {
+        #if ENABLE_SPARKLE
+        if sparkleUpdater?.isUpdateAvailable == true {
+            return "v\(appVersion) · update available"
+        }
+        #endif
+        return "v\(appVersion) · up to date"
+    }
+
+    private var updateStatusColor: Color {
+        #if ENABLE_SPARKLE
+        if sparkleUpdater?.isUpdateAvailable == true {
+            return theme.statusWarning
+        }
+        #endif
+        return theme.statusHealthy
+    }
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
@@ -44,21 +70,25 @@ struct SettingsSidebarView: View {
             .padding(.bottom, 8)
 
             ForEach(SettingsSectionGroup.allCases) { group in
-                Text(group.title.uppercased())
-                    .font(.system(size: 9, weight: .semibold, design: theme.fontDesign))
-                    .foregroundStyle(theme.textTertiary)
-                    .tracking(1.2)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 12)
-                    .padding(.bottom, 4)
+                let sections = group.sections.filter { visibleSections.contains($0) }
 
-                ForEach(group.sections) { section in
-                    SidebarItem(
-                        section: section,
-                        isSelected: selection == section,
-                        badge: section == .providers ? "\(enabledProviderCount)/\(totalProviderCount)" : nil
-                    ) {
-                        selection = section
+                if !sections.isEmpty {
+                    Text(group.title.uppercased())
+                        .font(.system(size: 9, weight: .semibold, design: theme.fontDesign))
+                        .foregroundStyle(theme.textTertiary)
+                        .tracking(1.2)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 12)
+                        .padding(.bottom, 4)
+
+                    ForEach(sections) { section in
+                        SidebarItem(
+                            section: section,
+                            isSelected: selection == section,
+                            badge: section == .providers ? "\(enabledProviderCount)/\(totalProviderCount)" : nil
+                        ) {
+                            selection = section
+                        }
                     }
                 }
             }
@@ -67,10 +97,10 @@ struct SettingsSidebarView: View {
 
             HStack(spacing: 7) {
                 Circle()
-                    .fill(theme.statusHealthy)
+                    .fill(updateStatusColor)
                     .frame(width: 7, height: 7)
 
-                Text("v\(appVersion)")
+                Text(updateStatusText)
                     .font(.system(size: 10, weight: .medium, design: theme.fontDesign))
                     .foregroundStyle(theme.textTertiary)
             }

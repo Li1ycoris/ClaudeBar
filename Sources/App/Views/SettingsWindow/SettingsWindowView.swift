@@ -12,10 +12,18 @@ struct SettingsWindowView: View {
     @Environment(\.appTheme) private var theme
     @Environment(\.colorScheme) private var colorScheme
     @State private var selection: SettingsSection = .general
+    @State private var searchText = ""
 
     var body: some View {
         ZStack {
+            // Real glass: the desktop blurs through the window (Liquid Glass
+            // on macOS 26+), with the theme gradient as a translucent tint so
+            // the app's identity reads over the blur instead of replacing it.
+            VisualEffectView(material: .hudWindow, blending: .behindWindow)
+                .ignoresSafeArea()
+
             theme.backgroundGradient
+                .opacity(0.82)
                 .ignoresSafeArea()
 
             if theme.showBackgroundOrbs {
@@ -26,11 +34,30 @@ struct SettingsWindowView: View {
             theme.overlayView
 
             HStack(spacing: 0) {
-                SettingsSidebarView(monitor: monitor, selection: $selection)
+                SettingsSidebarView(monitor: monitor, selection: $selection, filter: searchText)
                     .ignoresSafeArea(.container, edges: .top)
 
-                activePane
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                VStack(spacing: 0) {
+                    // Search rides the top edge, level with the traffic lights.
+                    HStack {
+                        Spacer()
+                        searchField
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.top, 10)
+
+                    activePane
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                }
+                .ignoresSafeArea(.container, edges: .top)
+            }
+        }
+        // Searching narrows the sidebar; keep the selection on a visible
+        // section so the pane never shows something the sidebar hides.
+        .onChange(of: searchText) { _, newValue in
+            let visible = SettingsSection.matching(filter: newValue)
+            if !visible.contains(selection), let first = visible.first {
+                selection = first
             }
         }
         .frame(minWidth: 760, minHeight: 520)
@@ -64,6 +91,41 @@ struct SettingsWindowView: View {
         case .about:
             AboutPane()
         }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(theme.textTertiary)
+
+            TextField("Search settings…", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12, weight: .medium, design: theme.fontDesign))
+                .foregroundStyle(theme.textPrimary)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(theme.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .frame(width: 220)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(theme.glassBackground.opacity(0.5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(theme.glassBorder, lineWidth: 1)
+                )
+        )
     }
 
     /// Soft ambient orbs matching the popover's background treatment.

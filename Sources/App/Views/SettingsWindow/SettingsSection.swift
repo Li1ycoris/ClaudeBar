@@ -30,6 +30,32 @@ enum SettingsSection: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Keywords beyond the title that the settings search matches against.
+    var searchKeywords: [String] {
+        switch self {
+        case .general: ["launch", "login", "overview", "daily usage", "burn rate", "threshold"]
+        case .appearance: ["theme", "dark", "light", "cli", "christmas", "import"]
+        case .menuBar: ["percentage", "duration", "quota display", "stacked", "status bar"]
+        case .providers: ["claude", "codex", "gemini", "copilot", "zai", "bedrock", "kimi", "minimax", "enable"]
+        case .syncAlerts: ["background", "refresh", "interval", "notification"]
+        case .hooks: ["claude code", "session", "install"]
+        case .updates: ["sparkle", "beta", "version", "check"]
+        case .logs: ["log file", "debug", "report"]
+        case .about: ["version", "github", "license"]
+        }
+    }
+
+    /// Sections whose title or keywords match the search filter.
+    /// An empty filter matches everything.
+    static func matching(filter: String) -> [SettingsSection] {
+        let query = filter.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !query.isEmpty else { return allCases }
+        return allCases.filter { section in
+            section.title.lowercased().contains(query)
+                || section.searchKeywords.contains { $0.contains(query) }
+        }
+    }
+
     var symbolName: String {
         switch self {
         case .general: "gearshape.fill"
