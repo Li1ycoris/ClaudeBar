@@ -117,7 +117,7 @@ struct ClaudeBarApp: App {
                 settingsRepository: settingsRepository
             ),
             OpenCodeProvider(
-                probe: OpenCodeUsageProbe(),
+                probe: OpenCodeAPIUsageProbe(fallback: OpenCodeUsageProbe()),
                 settingsRepository: settingsRepository
             ),
             OmpProvider(

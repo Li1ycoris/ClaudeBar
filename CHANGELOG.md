@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- OpenCode Go usage now comes from the official `/zen/go/v1/usage` endpoint, so the numbers match the opencode.ai dashboard instead of a local-DB estimate that only saw this machine's messages (#249). The API key is read from `OPENCODE_API_KEY` or opencode's `auth.json`; the local-DB probe remains as a fallback when no key is configured.
+
 ---
 
 ## [0.4.82] - 2026-08-24
