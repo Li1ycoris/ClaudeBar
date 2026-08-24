@@ -33,6 +33,14 @@ final class StatusItemLabelDriver {
     private var blinkSync: ObservationRenderSync<Bool>?
     private var streamConsumer: Task<Void, Never>?
     private var wakeObserver: NSObjectProtocol?
+    private var screenObserver: NSObjectProtocol?
+
+    /// Polls for a status item we can actually draw into. See
+    /// `startAttachLifecycle` for why MenuBarExtraAccess alone isn't enough.
+    private var attachWatchdog: Task<Void, Never>?
+
+    /// One-shot latch so a missing button is logged once, not twice a second.
+    private var hasLoggedMissingButton = false
 
     /// Drives the countdown: every tick re-reads the label (picking up the
     /// current wall clock) and flips `blinkPhase`. See `startBlinkTimer`.
@@ -79,13 +87,34 @@ final class StatusItemLabelDriver {
         var colonVisible: Bool = true
     }
 
-    /// Attaches to the `NSStatusItem` exposed by MenuBarExtraAccess and starts
-    /// rendering. Repeated callbacks re-assert the image (cheap, idempotent).
+    /// Attaches to an `NSStatusItem` and starts rendering. Repeated callbacks
+    /// re-assert the image (cheap, idempotent).
+    ///
+    /// Rejects an item with no `button`, because every render into it would
+    /// silently no-op and the menu bar would show nothing but the 1x1
+    /// placeholder label — an invisible, unfindable status item with no route
+    /// to Settings (issue #258).
+    ///
+    /// That is reachable through MenuBarExtraAccess, which hands over
+    /// `statusItems[0]`. With "Displays have Separate Spaces" there is one
+    /// `NSStatusBarWindow` per screen — the real item plus one replicant per
+    /// additional display — and only the real one carries a button. Before
+    /// macOS 26 the replicant was a distinct class the library filtered out;
+    /// on macOS 26 both report `NSSceneStatusItem`, so its filter keeps both
+    /// and which one lands at index 0 is left to `NSApp.windows` ordering.
     func attach(_ statusItem: NSStatusItem) {
+        guard statusItem.button != nil else {
+            AppLog.ui.warning("Status item has no button (per-display replicant); looking for the real one")
+            startAttachWatchdog()
+            return
+        }
         guard self.statusItem !== statusItem else {
             labelSync?.renderNow()
             return
         }
+        attachWatchdog?.cancel()
+        attachWatchdog = nil
+        hasLoggedMissingButton = false
         self.statusItem = statusItem
         labelSync?.stop()
 
@@ -181,7 +210,15 @@ final class StatusItemLabelDriver {
     }
 
     private func render(_ content: LabelContent) {
-        guard let button = statusItem?.button else { return }
+        guard let button = statusItem?.button else {
+            // Loud but once: the symptom is a menu bar item that is invisible
+            // and unclickable, which otherwise leaves no trace in the log.
+            if !hasLoggedMissingButton {
+                hasLoggedMissingButton = true
+                AppLog.ui.error("Status item has no button — nothing can be drawn into the menu bar")
+            }
+            return
+        }
         // Skip when nothing changed and our image is still in place —
         // re-setting an identical image redraws the button and can flicker.
         if content == lastContent, let lastImage, button.image === lastImage {
@@ -292,6 +329,87 @@ final class StatusItemLabelDriver {
         }
         composed.isTemplate = false
         return composed
+    }
+
+    // MARK: - Attachment Lifecycle
+
+    /// Retry cadence for finding the status item: fast at first (it normally
+    /// exists within a second of launch), then backing off to cover a slow
+    /// first launch. Gives up after roughly two minutes.
+    private static let attachRetryDelays: [Double] =
+        Array(repeating: 0.25, count: 20)   // first 5s
+        + Array(repeating: 1.0, count: 25)  // to 30s
+        + Array(repeating: 5.0, count: 18)  // to ~2min
+
+    /// Starts owning the status-item attachment instead of depending solely on
+    /// MenuBarExtraAccess. Call once at app startup, alongside
+    /// `startMonitoringLifecycle`.
+    ///
+    /// The library's introspection has two failure modes that both leave the
+    /// menu bar permanently blank (issue #258): it hands over `statusItems[0]`,
+    /// which on macOS 26 can be the button-less per-display replicant (see
+    /// `attach`), and it polls for only two seconds before giving up for the
+    /// rest of the app's lifetime. Since v0.4.69 every visible pixel is drawn
+    /// into `button.image` — the SwiftUI label is a 1x1 transparent
+    /// placeholder — so either failure means no icon, no width, and no way to
+    /// open Settings.
+    func startAttachLifecycle() {
+        startAttachWatchdog()
+
+        guard screenObserver == nil else { return }
+        // Attaching or detaching a display rebuilds the status bar windows, so
+        // the item we hold can turn into a replicant. Re-check on every change.
+        screenObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.revalidateAttachment() }
+        }
+    }
+
+    /// Polls for a drawable status item until one turns up. A no-op while we
+    /// already hold one, and while a poll is already running.
+    private func startAttachWatchdog() {
+        guard attachWatchdog == nil, statusItem?.button == nil else { return }
+        attachWatchdog = Task { @MainActor [weak self] in
+            // Release the slot however this ends, so a later display change can
+            // start a fresh search instead of being locked out by a spent task.
+            defer { self?.attachWatchdog = nil }
+            for delay in Self.attachRetryDelays {
+                try? await Task.sleep(for: .seconds(delay))
+                guard !Task.isCancelled, let self else { return }
+                guard self.statusItem?.button == nil else { return }
+                guard let item = Self.drawableStatusItem() else { continue }
+                AppLog.ui.notice("Attached to the status item via the watchdog")
+                self.attach(item)
+                return
+            }
+            AppLog.ui.error("No drawable status item found — the menu bar will stay blank")
+        }
+    }
+
+    /// Drops an item we can no longer draw into and goes looking for the real
+    /// one; otherwise just repaints, in case the menu bar was rebuilt stale.
+    private func revalidateAttachment() {
+        guard statusItem?.button == nil else {
+            labelSync?.renderNow()
+            return
+        }
+        statusItem = nil
+        startAttachWatchdog()
+    }
+
+    /// The app's own status items, read the way AppKit exposes them: every
+    /// `NSStatusBarWindow` carries its item under a private `statusItem` key.
+    /// Only the real item has a button — the per-display replicants do not —
+    /// so that, not position, is what identifies the one we can render into.
+    private static func drawableStatusItem() -> NSStatusItem? {
+        NSApplication.shared.windows
+            .filter { $0.className.contains("NSStatusBarWindow") }
+            .compactMap { window -> NSStatusItem? in
+                guard window.responds(to: Selector(("statusItem"))) else { return nil }
+                return window.value(forKey: "statusItem") as? NSStatusItem
+            }
+            .first { $0.button != nil }
     }
 
     // MARK: - Countdown Tick

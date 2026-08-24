@@ -152,6 +152,7 @@ struct ClaudeBarApp: App {
             sessionMonitor: sessionMonitor
         )
         statusItemDriver.startMonitoringLifecycle()
+        statusItemDriver.startAttachLifecycle()
 
         // Load user extensions from ~/.claudebar/extensions/
         let extensionRegistry = ExtensionRegistry(
