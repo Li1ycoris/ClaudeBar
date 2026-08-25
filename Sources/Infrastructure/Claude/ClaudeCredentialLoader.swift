@@ -133,10 +133,11 @@ public struct ClaudeCredentialLoader: Sendable {
 
         var updatedData = result.fullData
 
-        // Update the OAuth section
-        var oauthDict: [String: Any] = [
-            "accessToken": result.oauth.accessToken
-        ]
+        // Merge into the existing OAuth section so fields we do not model
+        // (e.g. `scopes`) survive the write-back — the file is shared with
+        // Claude Code, which reads them.
+        var oauthDict = (result.fullData["claudeAiOauth"] as? [String: Any]) ?? [:]
+        oauthDict["accessToken"] = result.oauth.accessToken
         if let refreshToken = result.oauth.refreshToken {
             oauthDict["refreshToken"] = refreshToken
         }
