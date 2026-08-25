@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Refreshing the Claude OAuth token no longer strips fields ClaudeBar does not model (notably `scopes`) from `claudeAiOauth`. The credential is shared with Claude Code, so a write-back handed it back an incomplete record. (#256)
+- Claude credentials stored in the Keychain could not be read back on macOS 26, leaving the API probe reporting "No credentials found" until the next `claude` login. `security -w` returns any password holding a non-printable-ASCII byte as hex, and the pretty-printed JSON ClaudeBar wrote contained newlines. Payloads are now written compact, and hex-encoded items left behind by earlier builds are decoded on read. (#255)
 
 ---
 
