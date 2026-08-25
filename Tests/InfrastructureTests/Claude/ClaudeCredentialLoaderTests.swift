@@ -256,6 +256,42 @@ struct ClaudeCredentialLoaderTests {
     }
 
     @Test
+    func `keychain payload is compact so security does not hex-encode it`() throws {
+        let data: [String: Any] = [
+            "claudeAiOauth": [
+                "accessToken": "token",
+                "scopes": ["user:inference", "user:profile"]
+            ]
+        ]
+
+        let payload = try #require(ClaudeCredentialLoader.keychainPayload(from: data))
+
+        // `security find-generic-password -w` hex-encodes any password holding a
+        // byte outside printable ASCII, so the payload must stay printable.
+        #expect(payload.allSatisfy { $0.isASCII && $0.asciiValue.map { (0x20...0x7e).contains($0) } == true })
+        #expect(!payload.contains("\n"))
+    }
+
+    @Test
+    func `loadCredentials decodes hex-encoded keychain payload from an older build`() throws {
+        let json = #"{"claudeAiOauth":{"accessToken":"hex-token"}}"#
+        let hex = json.utf8.map { String(format: "%02x", $0) }.joined()
+
+        let decoded = try #require(ClaudeCredentialLoader.decodeKeychainPayload(hex))
+
+        #expect(String(data: decoded, encoding: .utf8) == json)
+    }
+
+    @Test
+    func `keychain payload that is already plain JSON is passed through unchanged`() throws {
+        let json = #"{"claudeAiOauth":{"accessToken":"plain-token"}}"#
+
+        let decoded = try #require(ClaudeCredentialLoader.decodeKeychainPayload(json))
+
+        #expect(String(data: decoded, encoding: .utf8) == json)
+    }
+
+    @Test
     func `keychain save arguments update existing item for account`() {
         let password = """
         {

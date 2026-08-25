@@ -72,6 +72,49 @@ public struct ClaudeCredentialLoader: Sendable {
         ]
     }
 
+    /// Serializes credentials for the Keychain.
+    ///
+    /// Deliberately compact: `security find-generic-password -w` on macOS 26
+    /// returns any password containing a byte outside printable ASCII as a hex
+    /// string rather than raw text, and pretty-printing's newlines are enough
+    /// to trigger it — leaving a password we can write but not read back (#255).
+    static func keychainPayload(from data: [String: Any]) -> String? {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: data, options: []) else {
+            return nil
+        }
+        return String(data: jsonData, encoding: .utf8)
+    }
+
+    /// Decodes a password read back from `security find-generic-password -w`,
+    /// undoing the macOS 26 hex encoding when present.
+    ///
+    /// A payload written by an older ClaudeBar build comes back hex-encoded;
+    /// this keeps those users working instead of stranding them until their
+    /// next `claude` login. Valid JSON always starts with `{`, which is not a
+    /// hex digit, so an all-hex payload is unambiguously the encoded form.
+    static func decodeKeychainPayload(_ raw: String) -> Data? {
+        if let decoded = hexDecoded(raw) {
+            return decoded
+        }
+        return raw.data(using: .utf8)
+    }
+
+    private static func hexDecoded(_ string: String) -> Data? {
+        guard !string.isEmpty, string.count % 2 == 0 else { return nil }
+
+        var bytes = [UInt8]()
+        bytes.reserveCapacity(string.count / 2)
+
+        var index = string.startIndex
+        while index < string.endIndex {
+            let next = string.index(index, offsetBy: 2)
+            guard let byte = UInt8(string[index..<next], radix: 16) else { return nil }
+            bytes.append(byte)
+            index = next
+        }
+        return Data(bytes)
+    }
+
     public init(
         homeDirectory: String = NSHomeDirectory(),
         keychainService: String = "Claude Code-credentials",
@@ -247,7 +290,7 @@ public struct ClaudeCredentialLoader: Sendable {
                 .trimmingCharacters(in: .whitespacesAndNewlines),
                   !jsonString.isEmpty else { return nil }
 
-            guard let jsonData = jsonString.data(using: .utf8),
+            guard let jsonData = Self.decodeKeychainPayload(jsonString),
                   let json = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
                   let oauthDict = json["claudeAiOauth"] as? [String: Any],
                   let rawAccessToken = oauthDict["accessToken"] as? String else {
@@ -272,8 +315,7 @@ public struct ClaudeCredentialLoader: Sendable {
     }
 
     private func saveToKeychain(_ data: [String: Any]) {
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted]),
-              let jsonString = String(data: jsonData, encoding: .utf8) else {
+        guard let jsonString = Self.keychainPayload(from: data) else {
             AppLog.credentials.error("Failed to serialize Claude credentials for Keychain")
             return
         }
