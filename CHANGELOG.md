@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.84] - 2026-08-25
+
 ### Fixed
 - Codex usage could not be retrieved at all ("Could not find usage limits in Codex output"). The Codex CLI dropped `untrusted` from `--ask-for-approval`, so both the app-server and the TTY fallback exited at argument parsing. (#259)
 - The header badge no longer shows a green "HEALTHY" for a provider that failed to probe; it now reads "UNAVAILABLE", or "NO DATA" before the first refresh. (#259)
@@ -994,7 +998,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu bar interface with quota display
 - Automatic refresh every 5 minutes
 
-[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.83...HEAD
+[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.84...HEAD
+[0.4.84]: https://github.com/tddworks/ClaudeBar/compare/v0.4.83...v0.4.84
 [0.4.83]: https://github.com/tddworks/ClaudeBar/compare/v0.4.82...v0.4.83
 [0.4.82]: https://github.com/tddworks/ClaudeBar/compare/v0.4.81...v0.4.82
 [0.4.81]: https://github.com/tddworks/ClaudeBar/compare/v0.4.80...v0.4.81
