@@ -284,13 +284,24 @@ struct MenuContentView: View {
         }
     }
 
-    /// Status of the currently selected provider
-    private var selectedProviderStatus: QuotaStatus {
-        guard let snapshot = selectedProvider?.snapshot else { return .healthy }
+    /// Status of the currently selected provider, nil when it has no snapshot.
+    private var selectedProviderStatus: QuotaStatus? {
+        guard let snapshot = selectedProvider?.snapshot else { return nil }
         if settings.burnRateWarningEnabled {
             return snapshot.paceAwareOverallStatus(burnRateThreshold: settings.burnRateThreshold)
         }
         return snapshot.overallStatus
+    }
+
+    /// What the header pill says. A provider that failed to probe reads as
+    /// "UNAVAILABLE" rather than borrowing a green "HEALTHY" it has no data
+    /// for (#259).
+    private var selectedProviderBadge: ProviderBadgeState {
+        ProviderBadgeState(
+            isSyncing: isSelectedProviderSyncing,
+            quotaStatus: selectedProviderStatus,
+            hasError: selectedProvider?.lastError != nil
+        )
     }
 
     /// Whether the selected provider is currently syncing
@@ -299,7 +310,7 @@ struct MenuContentView: View {
     }
 
     private var statusBadge: some View {
-        let statusColor = theme.statusColor(for: selectedProviderStatus)
+        let statusColor = selectedProviderBadge.badgeColor(theme)
 
         return HStack(spacing: 6) {
             // Animated pulse dot
@@ -325,8 +336,7 @@ struct MenuContentView: View {
     }
 
     private var statusText: String {
-        if isSelectedProviderSyncing { return "Syncing..." }
-        return selectedProviderStatus.badgeText
+        selectedProviderBadge.badgeText
     }
 
     /// Help text for settings button, includes update info if available
