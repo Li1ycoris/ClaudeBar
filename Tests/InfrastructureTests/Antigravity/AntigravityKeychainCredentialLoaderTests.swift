@@ -79,7 +79,7 @@ struct AntigravityKeychainCredentialLoaderTests {
     // MARK: - Loading via security CLI
 
     @Test
-    func `load returns credentials when security CLI succeeds`() {
+    func `load returns credentials when security CLI succeeds`() async {
         let mockExecutor = MockCLIExecutor()
         given(mockExecutor)
             .execute(binary: .any, args: .any, input: .any, timeout: .any, workingDirectory: .any, autoResponses: .any)
@@ -87,11 +87,11 @@ struct AntigravityKeychainCredentialLoaderTests {
 
         let loader = AntigravityKeychainCredentialLoader(cliExecutor: mockExecutor)
 
-        #expect(loader.load()?.accessToken == "ya29.access")
+        #expect(await loader.load()?.accessToken == "ya29.access")
     }
 
     @Test
-    func `load returns nil when keychain item is missing`() {
+    func `load returns nil when keychain item is missing`() async {
         let mockExecutor = MockCLIExecutor()
         given(mockExecutor)
             .execute(binary: .any, args: .any, input: .any, timeout: .any, workingDirectory: .any, autoResponses: .any)
@@ -99,6 +99,6 @@ struct AntigravityKeychainCredentialLoaderTests {
 
         let loader = AntigravityKeychainCredentialLoader(cliExecutor: mockExecutor)
 
-        #expect(loader.load() == nil)
+        #expect(await loader.load() == nil)
     }
 }

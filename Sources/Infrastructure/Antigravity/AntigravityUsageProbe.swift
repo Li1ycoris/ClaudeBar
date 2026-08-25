@@ -51,7 +51,7 @@ public struct AntigravityUsageProbe: UsageProbe {
             AppLog.probes.debug("Antigravity process not available: \(error.localizedDescription)")
         }
 
-        if credentialLoader.load() != nil {
+        if await credentialLoader.load() != nil {
             AppLog.probes.debug("Antigravity: Keychain credentials found, Cloud Code fallback available")
             return true
         }
@@ -121,7 +121,7 @@ public struct AntigravityUsageProbe: UsageProbe {
     // MARK: - Cloud Code Fallback (app closed)
 
     private func probeCloudCode() async throws -> UsageSnapshot {
-        guard let credentials = credentialLoader.load() else {
+        guard let credentials = await credentialLoader.load() else {
             AppLog.probes.error("Antigravity probe failed: not running and no stored credentials")
             throw ProbeError.cliNotFound("Antigravity")
         }

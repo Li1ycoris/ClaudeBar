@@ -44,10 +44,10 @@ public struct AntigravityKeychainCredentialLoader: Sendable {
     }
 
     /// Returns the stored credentials, or nil when the Keychain item is absent or unreadable.
-    public func load() -> AntigravityOAuthCredentials? {
+    public func load() async -> AntigravityOAuthCredentials? {
         let result: CLIResult
         do {
-            result = try cliExecutor.execute(
+            result = try await cliExecutor.execute(
                 binary: "/usr/bin/security",
                 args: ["find-generic-password", "-s", Self.keychainService, "-a", Self.keychainAccount, "-w"],
                 input: nil,
