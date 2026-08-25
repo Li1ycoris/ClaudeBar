@@ -225,6 +225,37 @@ struct ClaudeCredentialLoaderTests {
     }
 
     @Test
+    func `saveCredentials preserves claudeAiOauth fields it does not model`() throws {
+        let tempDir = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let claudeDir = tempDir.appendingPathComponent(".claude", isDirectory: true)
+        try FileManager.default.createDirectory(at: claudeDir, withIntermediateDirectories: true)
+        let credentials: [String: Any] = [
+            "claudeAiOauth": [
+                "accessToken": "old-token",
+                "refreshToken": "old-refresh",
+                "expiresAt": 1_748_276_587_173,
+                "scopes": ["user:inference", "user:profile"]
+            ]
+        ]
+        let filePath = claudeDir.appendingPathComponent(".credentials.json")
+        try JSONSerialization.data(withJSONObject: credentials, options: []).write(to: filePath)
+
+        let loader = ClaudeCredentialLoader(homeDirectory: tempDir.path, useKeychain: false)
+        var result = loader.loadCredentials()!
+        result.oauth.accessToken = "new-token"
+
+        loader.saveCredentials(result)
+
+        let data = try Data(contentsOf: filePath)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let oauth = json?["claudeAiOauth"] as? [String: Any]
+        #expect(oauth?["accessToken"] as? String == "new-token")
+        #expect(oauth?["scopes"] as? [String] == ["user:inference", "user:profile"])
+    }
+
+    @Test
     func `keychain save arguments update existing item for account`() {
         let password = """
         {

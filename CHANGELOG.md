@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Refreshing the Claude OAuth token no longer strips fields ClaudeBar does not model (notably `scopes`) from `claudeAiOauth`. The credential is shared with Claude Code, so a write-back handed it back an incomplete record. (#256)
+
 ---
 
 ## [0.4.84] - 2026-08-25
