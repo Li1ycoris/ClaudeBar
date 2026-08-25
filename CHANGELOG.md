@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Codex usage could not be retrieved at all ("Could not find usage limits in Codex output"). The Codex CLI dropped `untrusted` from `--ask-for-approval`, so both the app-server and the TTY fallback exited at argument parsing. (#259)
+- The header badge no longer shows a green "HEALTHY" for a provider that failed to probe; it now reads "UNAVAILABLE", or "NO DATA" before the first refresh. (#259)
+
 ---
 
 ## [0.4.83] - 2026-08-25

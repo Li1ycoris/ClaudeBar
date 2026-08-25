@@ -854,6 +854,31 @@ extension QuotaStatus {
     }
 }
 
+// MARK: - ProviderBadgeState Theme Extension
+
+extension ProviderBadgeState {
+    /// Text for the header pill. States without data say so rather than
+    /// borrowing "HEALTHY" from a snapshot that does not exist (#259).
+    var badgeText: String {
+        switch self {
+        case .syncing: "Syncing..."
+        case .unavailable: "UNAVAILABLE"
+        case .awaitingData: "NO DATA"
+        case .quota(let status): status.badgeText
+        }
+    }
+
+    /// Pill accent color, resolved against the active theme.
+    func badgeColor(_ theme: any AppThemeProvider) -> Color {
+        switch self {
+        case .syncing, .awaitingData: theme.textTertiary
+        // Matches the warning triangle on the "Unavailable" card below it.
+        case .unavailable: theme.statusWarning
+        case .quota(let status): theme.statusColor(for: status)
+        }
+    }
+}
+
 // MARK: - UsagePace Theme Extension
 
 extension UsagePace {
