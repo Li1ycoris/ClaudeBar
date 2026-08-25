@@ -54,10 +54,10 @@ struct OpenCodeAPIUsageProbeParsingTests {
         let snapshot = try OpenCodeAPIUsageProbe.parseResponse(Self.usageJSON)
 
         let session = try #require(snapshot.quotas.first { $0.quotaType == .session })
-        #expect(session.windowDuration == 5 * 3600)
+        #expect(session.windowDuration == TimeInterval(5 * 3600))
 
         let weekly = try #require(snapshot.quotas.first { $0.quotaType == .weekly })
-        #expect(weekly.windowDuration == 7 * 86400)
+        #expect(weekly.windowDuration == TimeInterval(7 * 86400))
     }
 
     @Test
