@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.83] - 2026-08-25
+
 ### Fixed
 - OpenCode Go usage now comes from the official `/zen/go/v1/usage` endpoint, so the numbers match the opencode.ai dashboard instead of a local-DB estimate that only saw this machine's messages (#249). The API key is read from `OPENCODE_API_KEY` or opencode's `auth.json`; the local-DB probe remains as a fallback when no key is configured.
 
@@ -986,7 +990,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Menu bar interface with quota display
 - Automatic refresh every 5 minutes
 
-[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.82...HEAD
+[Unreleased]: https://github.com/tddworks/ClaudeBar/compare/v0.4.83...HEAD
+[0.4.83]: https://github.com/tddworks/ClaudeBar/compare/v0.4.82...v0.4.83
 [0.4.82]: https://github.com/tddworks/ClaudeBar/compare/v0.4.81...v0.4.82
 [0.4.81]: https://github.com/tddworks/ClaudeBar/compare/v0.4.80...v0.4.81
 [0.4.80]: https://github.com/tddworks/ClaudeBar/compare/v0.4.79...v0.4.80
